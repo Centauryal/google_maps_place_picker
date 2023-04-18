@@ -48,7 +48,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
     this.forceSearchOnZoomChanged,
     this.hidePlaceDetailsWhenDraggingPin,
     this.heightResultPinPoint,
-    this.widgetResultPinPoint,
+    this.defaultResultPinPointNotFound,
   }) : super(key: key);
 
   final LatLng initialTarget;
@@ -79,7 +79,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
   final bool? hidePlaceDetailsWhenDraggingPin;
 
   // The widget bottom is used for pin point results
-  final Widget? widgetResultPinPoint;
+  final Widget? defaultResultPinPointNotFound;
   final double? heightResultPinPoint;
 
   _searchByCameraLocation(PlaceProvider provider) async {
@@ -160,8 +160,8 @@ class GoogleMapPlacePicker extends StatelessWidget {
           width: double.infinity,
           height: heightResultPinPoint ?? 270,
           color: Colors.white,
-          child: widgetResultPinPoint ?? SizedBox(),
-        )
+          child: _buildFloatingCard(),
+        ),
       ],
     );
   }
@@ -333,7 +333,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
           return Container();
         } else {
           if (selectedPlaceWidgetBuilder == null) {
-            return _defaultPlaceWidgetBuilder(context, data.item1, data.item2);
+            return defaultResultPinPointNotFound ?? SizedBox();
           } else {
             return Builder(
                 builder: (builderContext) => selectedPlaceWidgetBuilder!(
@@ -341,60 +341,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
           }
         }
       },
-    );
-  }
-
-  Widget _defaultPlaceWidgetBuilder(
-      BuildContext context, PickResult? data, SearchingState state) {
-    return FloatingCard(
-      bottomPosition: MediaQuery.of(context).size.height * 0.05,
-      leftPosition: MediaQuery.of(context).size.width * 0.025,
-      rightPosition: MediaQuery.of(context).size.width * 0.025,
-      width: MediaQuery.of(context).size.width * 0.9,
-      borderRadius: BorderRadius.circular(12.0),
-      elevation: 4.0,
-      color: Theme.of(context).cardColor,
-      child: state == SearchingState.Searching
-          ? _buildLoadingIndicator()
-          : _buildSelectionDetails(context, data!),
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    return Container(
-      height: 48,
-      child: const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectionDetails(BuildContext context, PickResult result) {
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          Text(
-            result.formattedAddress!,
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 10),
-          ElevatedButton(
-            child: Text(
-              "Select here",
-              style: TextStyle(fontSize: 16),
-            ),
-            onPressed: () {
-              onPlacePicked!(result);
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -430,30 +376,33 @@ class GoogleMapPlacePicker extends StatelessWidget {
                       side: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.my_location,
-                        size: 16,
-                        color: Color(0xFF12784A),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Use Current Location',
-                        style: GoogleFonts.poppins(
-                            textStyle: Theme.of(context)
-                                .textTheme
-                                .bodyText1!
-                                .copyWith(
-                                    leadingDistribution:
-                                        TextLeadingDistribution.even),
-                            fontSize: 16,
-                            color: Color(0xFF12784A),
-                            fontWeight: FontWeight.w500,
-                            height: 24 / 16,
-                            letterSpacing: 0),
-                      ),
-                    ],
+                  child: GestureDetector(
+                    onTap: onMyLocation,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.my_location,
+                          size: 16,
+                          color: Color(0xFF12784A),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Use Current Location',
+                          style: GoogleFonts.poppins(
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1!
+                                  .copyWith(
+                                      leadingDistribution:
+                                          TextLeadingDistribution.even),
+                              fontSize: 16,
+                              color: Color(0xFF12784A),
+                              fontWeight: FontWeight.w500,
+                              height: 24 / 16,
+                              letterSpacing: 0),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : SizedBox(),
