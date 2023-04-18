@@ -350,7 +350,7 @@ class _PlacePickerState extends State<PlacePicker> {
             ? SizedBox.square(
                 dimension: 48,
                 child: CircleAvatar(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.white,
                   radius: 20,
                   child: Center(
                     child: IconButton(
