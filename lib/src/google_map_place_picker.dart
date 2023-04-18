@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_place_picker/providers/place_provider.dart';
@@ -46,6 +47,8 @@ class GoogleMapPlacePicker extends StatelessWidget {
     this.language,
     this.forceSearchOnZoomChanged,
     this.hidePlaceDetailsWhenDraggingPin,
+    this.heightResultPinPoint,
+    this.widgetResultPinPoint,
   }) : super(key: key);
 
   final LatLng initialTarget;
@@ -74,6 +77,10 @@ class GoogleMapPlacePicker extends StatelessWidget {
 
   final bool? forceSearchOnZoomChanged;
   final bool? hidePlaceDetailsWhenDraggingPin;
+
+  // The widget bottom is used for pin point results
+  final Widget? widgetResultPinPoint;
+  final double? heightResultPinPoint;
 
   _searchByCameraLocation(PlaceProvider provider) async {
     // We don't want to search location again if camera location is changed by zooming in/out.
@@ -137,12 +144,25 @@ class GoogleMapPlacePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        _buildGoogleMap(context),
-        _buildPin(),
-        _buildFloatingCard(),
-        _buildMapIcons(context),
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: <Widget>[
+              _buildGoogleMap(context),
+              _buildPin(),
+              _buildFloatingCard(),
+              _buildMapIcons(context),
+            ],
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          height: heightResultPinPoint ?? 270,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          color: Colors.white,
+          child: widgetResultPinPoint ?? SizedBox(),
+        )
       ],
     );
   }
@@ -380,12 +400,9 @@ class GoogleMapPlacePicker extends StatelessWidget {
   }
 
   Widget _buildMapIcons(BuildContext context) {
-    final RenderBox appBarRenderBox =
-        appBarKey.currentContext!.findRenderObject() as RenderBox;
-
     return Positioned(
-      top: appBarRenderBox.size.height,
-      right: 15,
+      bottom: 20,
+      right: 16,
       child: Column(
         children: <Widget>[
           enableMapTypeButton!
@@ -406,19 +423,41 @@ class GoogleMapPlacePicker extends StatelessWidget {
           SizedBox(height: 10),
           enableMyLocationButton!
               ? Container(
-                  width: 35,
-                  height: 35,
-                  child: RawMaterialButton(
-                    shape: CircleBorder(),
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.black54
-                        : Colors.white,
-                    elevation: 8.0,
-                    onPressed: onMyLocation,
-                    child: Icon(Icons.my_location),
+                  height: 48,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.my_location,
+                        size: 16,
+                        color: Color(0xFF12784A),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Use Current Location',
+                        style: GoogleFonts.poppins(
+                            textStyle: Theme.of(context)
+                                .textTheme
+                                .bodyText1!
+                                .copyWith(
+                                    leadingDistribution:
+                                        TextLeadingDistribution.even),
+                            fontSize: 16,
+                            color: Color(0xFF12784A),
+                            fontWeight: FontWeight.w500,
+                            height: 24 / 16,
+                            letterSpacing: 0),
+                      ),
+                    ],
                   ),
                 )
-              : Container(),
+              : SizedBox(),
         ],
       ),
     );

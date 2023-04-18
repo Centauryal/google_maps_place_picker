@@ -17,7 +17,7 @@ class AutoCompleteSearch extends StatefulWidget {
       required this.appBarKey,
       this.hintText,
       this.searchingText = "Searching...",
-      this.height = 40,
+      this.height = 56,
       this.contentPadding = EdgeInsets.zero,
       this.debounceMilliseconds,
       this.onSearchFailed,
@@ -100,15 +100,12 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
       value: provider,
       child: RoundedFrame(
         height: widget.height,
-        padding: const EdgeInsets.only(right: 10),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.black54
-            : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        elevation: 8.0,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        color: Colors.white,
+        borderRadius: BorderRadius.zero,
+        elevation: 0,
         child: Row(
           children: <Widget>[
-            SizedBox(width: 10),
             Icon(Icons.search),
             SizedBox(width: 10),
             Expanded(child: _buildSearchTextField()),
@@ -142,9 +139,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
               child: GestureDetector(
                 child: Icon(
                   Icons.clear,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
+                  color: Colors.black,
                 ),
                 onTap: () {
                   clearText();

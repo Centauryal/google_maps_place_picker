@@ -15,9 +15,9 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'dart:io' show Platform;
 
 enum PinState { Preparing, Idle, Dragging }
+
 enum SearchingState { Idle, Searching }
 
 class PlacePicker extends StatefulWidget {
@@ -47,6 +47,7 @@ class PlacePicker extends StatefulWidget {
       this.myLocationButtonCooldown = 10,
       this.usePinPointingSearch = true,
       this.usePlaceDetailSearch = false,
+      this.useAutoCompleteSearch = false,
       this.autocompleteOffset,
       this.autocompleteRadius,
       this.autocompleteLanguage,
@@ -63,7 +64,57 @@ class PlacePicker extends StatefulWidget {
       this.automaticallyImplyAppBarLeading = true,
       this.autocompleteOnTrailingWhitespace = false,
       this.hidePlaceDetailsWhenDraggingPin = true,
-      this.errorMessageGpsIsDisable = ''})
+      this.errorMessageGpsIsDisable = '',
+      this.widgetResultPinPoint,
+      this.heightResultPinPoint})
+      : super(key: key);
+
+  PlacePicker.autoCompleteSearch(
+      {Key? key,
+      required this.apiKey,
+      this.onPlacePicked,
+      required this.initialPosition,
+      this.useCurrentLocation,
+      this.desiredLocationAccuracy = LocationAccuracy.high,
+      this.onMapCreated,
+      this.hintText,
+      this.searchingText,
+      // this.searchBarHeight,
+      // this.contentPadding,
+      this.onAutoCompleteFailed,
+      this.onGeocodingSearchFailed,
+      this.proxyBaseUrl,
+      this.httpClient,
+      this.selectedPlaceWidgetBuilder,
+      this.pinBuilder,
+      this.autoCompleteDebounceInMilliseconds = 500,
+      this.cameraMoveDebounceInMilliseconds = 750,
+      this.initialMapType = MapType.normal,
+      this.enableMapTypeButton = true,
+      this.enableMyLocationButton = true,
+      this.myLocationButtonCooldown = 10,
+      this.usePinPointingSearch = true,
+      this.usePlaceDetailSearch = false,
+      this.useAutoCompleteSearch = false,
+      this.autocompleteOffset,
+      this.autocompleteRadius,
+      this.autocompleteLanguage,
+      this.autocompleteComponents,
+      this.autocompleteTypes,
+      this.strictbounds,
+      this.region,
+      this.selectInitialPosition = false,
+      this.resizeToAvoidBottomInset = true,
+      this.initialSearchString,
+      this.searchForInitialValue = false,
+      this.forceAndroidLocationManager = false,
+      this.forceSearchOnZoomChanged = false,
+      this.automaticallyImplyAppBarLeading = true,
+      this.autocompleteOnTrailingWhitespace = false,
+      this.hidePlaceDetailsWhenDraggingPin = true,
+      this.errorMessageGpsIsDisable = '',
+      this.widgetResultPinPoint,
+      this.heightResultPinPoint})
       : super(key: key);
 
   final String apiKey;
@@ -91,6 +142,7 @@ class PlacePicker extends StatefulWidget {
 
   final bool usePinPointingSearch;
   final bool usePlaceDetailSearch;
+  final bool useAutoCompleteSearch;
 
   final num? autocompleteOffset;
   final num? autocompleteRadius;
@@ -171,6 +223,10 @@ class PlacePicker extends StatefulWidget {
 
   final String errorMessageGpsIsDisable;
 
+  /// The widget bottom is used for pin point results
+  final Widget? widgetResultPinPoint;
+  final double? heightResultPinPoint;
+
   @override
   _PlacePickerState createState() => _PlacePickerState();
 }
@@ -222,6 +278,7 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
+            final useOnlySearch = widget.useAutoCompleteSearch;
 
             return MultiProvider(
               providers: [
@@ -238,9 +295,11 @@ class _PlacePickerState extends State<PlacePicker> {
                   elevation: 0,
                   backgroundColor: Colors.transparent,
                   titleSpacing: 0.0,
-                  title: _buildSearchBar(context),
+                  title: useOnlySearch ? null : _buildSearchBar(context),
                 ),
-                body: _buildMapWithLocation(),
+                body: useOnlySearch
+                    ? _buildSearchBar(context)
+                    : _buildMapWithLocation(),
               ),
             );
           }
@@ -278,54 +337,57 @@ class _PlacePickerState extends State<PlacePicker> {
   Widget _buildSearchBar(BuildContext context) {
     return Row(
       children: <Widget>[
-        SizedBox(width: 8),
+        SizedBox(width: 16),
         widget.automaticallyImplyAppBarLeading
             ? CircleAvatar(
-                backgroundColor: Color(0XFF424242),
-                radius: 18,
+                backgroundColor: Colors.white,
+                radius: 50,
                 child: Center(
                   child: IconButton(
-                      onPressed: () => Navigator.maybePop(context),
-                      icon: Icon(
-                        Platform.isIOS
-                            ? Icons.arrow_back_ios
-                            : Icons.arrow_back,
-                        size: 16,
-                      ),
-                      padding: EdgeInsets.zero),
+                    onPressed: () => Navigator.maybePop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
               )
-            : SizedBox(width: 15),
-        SizedBox(width: 8),
-        Expanded(
-          child: AutoCompleteSearch(
-              appBarKey: appBarKey,
-              searchBarController: searchBarController,
-              sessionToken: provider!.sessionToken,
-              hintText: widget.hintText,
-              searchingText: widget.searchingText,
-              debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
-              onPicked: (prediction) {
-                _pickPrediction(prediction);
-              },
-              onSearchFailed: (status) {
-                if (widget.onAutoCompleteFailed != null) {
-                  widget.onAutoCompleteFailed!(status);
-                }
-              },
-              autocompleteOffset: widget.autocompleteOffset,
-              autocompleteRadius: widget.autocompleteRadius,
-              autocompleteLanguage: widget.autocompleteLanguage,
-              autocompleteComponents: widget.autocompleteComponents,
-              autocompleteTypes: widget.autocompleteTypes,
-              strictbounds: widget.strictbounds,
-              region: widget.region,
-              initialSearchString: widget.initialSearchString,
-              searchForInitialValue: widget.searchForInitialValue,
-              autocompleteOnTrailingWhitespace:
-                  widget.autocompleteOnTrailingWhitespace),
-        ),
-        SizedBox(width: 5),
+            : SizedBox(),
+        if (widget.useAutoCompleteSearch)
+          Padding(
+            padding: EdgeInsets.only(left: 8),
+            child: Expanded(
+              child: AutoCompleteSearch(
+                  appBarKey: appBarKey,
+                  searchBarController: searchBarController,
+                  sessionToken: provider!.sessionToken,
+                  hintText: widget.hintText,
+                  searchingText: widget.searchingText,
+                  debounceMilliseconds:
+                      widget.autoCompleteDebounceInMilliseconds,
+                  onPicked: (prediction) {
+                    _pickPrediction(prediction);
+                  },
+                  onSearchFailed: (status) {
+                    if (widget.onAutoCompleteFailed != null) {
+                      widget.onAutoCompleteFailed!(status);
+                    }
+                  },
+                  autocompleteOffset: widget.autocompleteOffset,
+                  autocompleteRadius: widget.autocompleteRadius,
+                  autocompleteLanguage: widget.autocompleteLanguage,
+                  autocompleteComponents: widget.autocompleteComponents,
+                  autocompleteTypes: widget.autocompleteTypes,
+                  strictbounds: widget.strictbounds,
+                  region: widget.region,
+                  initialSearchString: widget.initialSearchString,
+                  searchForInitialValue: widget.searchForInitialValue,
+                  autocompleteOnTrailingWhitespace:
+                      widget.autocompleteOnTrailingWhitespace),
+            ),
+          ),
       ],
     );
   }
@@ -428,6 +490,8 @@ class _PlacePickerState extends State<PlacePicker> {
       language: widget.autocompleteLanguage,
       forceSearchOnZoomChanged: widget.forceSearchOnZoomChanged,
       hidePlaceDetailsWhenDraggingPin: widget.hidePlaceDetailsWhenDraggingPin,
+      widgetResultPinPoint: widget.widgetResultPinPoint,
+      heightResultPinPoint: widget.heightResultPinPoint,
       onToggleMapType: () {
         provider!.switchMapType();
       },
@@ -446,25 +510,20 @@ class _PlacePickerState extends State<PlacePicker> {
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
+            backgroundColor: Colors.black,
             content: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  gradient: LinearGradient(
-                      colors: [Color(0xFFF6BA22), Color(0xFFF68522)])),
               child: Text(
                 widget.errorMessageGpsIsDisable,
-                style: GoogleFonts.roboto(
-                    textStyle: Theme.of(context).textTheme.caption!.copyWith(
+                style: GoogleFonts.poppins(
+                    textStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
                         leadingDistribution: TextLeadingDistribution.even),
-                    fontSize: 12,
-                    color: Color(0xFF000000),
-                    fontWeight: FontWeight.bold,
-                    height: 1.5,
-                    letterSpacing: 0.4),
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                    height: 20 / 14,
+                    letterSpacing: 0),
               ),
             ),
           ));
