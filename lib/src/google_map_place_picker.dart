@@ -177,6 +177,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
             myLocationButtonEnabled: false,
             compassEnabled: false,
             mapToolbarEnabled: false,
+            zoomControlsEnabled: false,
             initialCameraPosition: initialCameraPosition,
             mapType: data,
             myLocationEnabled: true,

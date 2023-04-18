@@ -544,7 +544,9 @@ class _PlacePickerState extends State<PlacePicker> {
         }
       },
       onMoveStart: () {
-        searchBarController.reset();
+        if (widget.useAutoCompleteSearch) {
+          searchBarController.reset();
+        }
       },
       onPlacePicked: widget.onPlacePicked,
     );
