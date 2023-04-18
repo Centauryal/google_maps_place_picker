@@ -347,19 +347,22 @@ class _PlacePickerState extends State<PlacePicker> {
       children: <Widget>[
         SizedBox(width: 16),
         widget.automaticallyImplyAppBarLeading
-            ? CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 20,
-                child: Center(
-                  child: IconButton(
-                    padding: EdgeInsets.all(12),
-                    icon: Icon(
-                      Icons.keyboard_arrow_left,
-                      color: Colors.black,
-                      size: 36,
+            ? SizedBox.square(
+                dimension: 48,
+                child: CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  radius: 20,
+                  child: Center(
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.keyboard_arrow_left,
+                        color: Colors.black,
+                        size: 36,
+                      ),
+                      color: Colors.white,
+                      onPressed: () => Navigator.maybePop(context),
                     ),
-                    color: Colors.white,
-                    onPressed: () => Navigator.maybePop(context),
                   ),
                 ),
               )
