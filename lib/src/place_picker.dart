@@ -351,6 +351,8 @@ class _PlacePickerState extends State<PlacePicker> {
                 onPressed: () => Navigator.maybePop(context),
                 style: ElevatedButton.styleFrom(
                   shape: CircleBorder(),
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.all(24),
                 ),
                 child: Center(
                   child: Icon(
