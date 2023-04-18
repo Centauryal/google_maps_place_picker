@@ -159,7 +159,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
         Container(
           width: double.infinity,
           height: heightResultPinPoint ?? 270,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           color: Colors.white,
           child: widgetResultPinPoint ?? SizedBox(),
         )
