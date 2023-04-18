@@ -151,7 +151,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
             children: <Widget>[
               _buildGoogleMap(context),
               _buildPin(),
-              _buildFloatingCard(),
               _buildMapIcons(context),
             ],
           ),
