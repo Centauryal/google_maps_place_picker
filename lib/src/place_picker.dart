@@ -127,6 +127,7 @@ class PlacePicker extends StatefulWidget {
 
   final String? hintText;
   final String? searchingText;
+
   // final double searchBarHeight;
   // final EdgeInsetsGeometry contentPadding;
 
@@ -235,18 +236,23 @@ class _PlacePickerState extends State<PlacePicker> {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
-  SearchBarController searchBarController = SearchBarController();
+  late SearchBarController searchBarController;
 
   @override
   void initState() {
     super.initState();
+    if (widget.useAutoCompleteSearch) {
+      searchBarController = SearchBarController();
+    }
 
     _futureProvider = _initPlaceProvider();
   }
 
   @override
   void dispose() {
-    searchBarController.dispose();
+    if (widget.useAutoCompleteSearch) {
+      searchBarController.dispose();
+    }
 
     super.dispose();
   }
@@ -270,7 +276,9 @@ class _PlacePickerState extends State<PlacePicker> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        searchBarController.clearOverlay();
+        if (widget.useAutoCompleteSearch) {
+          searchBarController.clearOverlay();
+        }
         return Future.value(true);
       },
       child: FutureBuilder<PlaceProvider>(
@@ -339,18 +347,16 @@ class _PlacePickerState extends State<PlacePicker> {
       children: <Widget>[
         SizedBox(width: 16),
         widget.automaticallyImplyAppBarLeading
-            ? CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 50,
+            ? ElevatedButton(
+                onPressed: () => Navigator.maybePop(context),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                ),
                 child: Center(
-                  child: IconButton(
-                    onPressed: () => Navigator.maybePop(context),
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.black,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.black,
+                    size: 24,
                   ),
                 ),
               )
