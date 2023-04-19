@@ -65,8 +65,7 @@ class PlacePicker extends StatefulWidget {
       this.autocompleteOnTrailingWhitespace = false,
       this.hidePlaceDetailsWhenDraggingPin = true,
       this.errorMessageGpsIsDisable = '',
-      this.defaultResultPinPointNotFound,
-      this.heightResultPinPoint})
+      this.defaultResultPinPointNotFound})
       : super(key: key);
 
   PlacePicker.autoCompleteSearch(
@@ -113,8 +112,7 @@ class PlacePicker extends StatefulWidget {
       this.autocompleteOnTrailingWhitespace = false,
       this.hidePlaceDetailsWhenDraggingPin = true,
       this.errorMessageGpsIsDisable = '',
-      this.defaultResultPinPointNotFound,
-      this.heightResultPinPoint})
+      this.defaultResultPinPointNotFound})
       : super(key: key);
 
   final String apiKey;
@@ -226,7 +224,6 @@ class PlacePicker extends StatefulWidget {
 
   /// The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
-  final double? heightResultPinPoint;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -505,7 +502,6 @@ class _PlacePickerState extends State<PlacePicker> {
       forceSearchOnZoomChanged: widget.forceSearchOnZoomChanged,
       hidePlaceDetailsWhenDraggingPin: widget.hidePlaceDetailsWhenDraggingPin,
       defaultResultPinPointNotFound: widget.defaultResultPinPointNotFound,
-      heightResultPinPoint: widget.heightResultPinPoint,
       onToggleMapType: () {
         provider!.switchMapType();
       },

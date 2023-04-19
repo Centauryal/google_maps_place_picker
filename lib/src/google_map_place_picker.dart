@@ -47,7 +47,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
     this.language,
     this.forceSearchOnZoomChanged,
     this.hidePlaceDetailsWhenDraggingPin,
-    this.heightResultPinPoint,
     this.defaultResultPinPointNotFound,
   }) : super(key: key);
 
@@ -80,7 +79,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
 
   // The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
-  final double? heightResultPinPoint;
 
   _searchByCameraLocation(PlaceProvider provider) async {
     // We don't want to search location again if camera location is changed by zooming in/out.
@@ -157,7 +155,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
         ),
         Container(
           width: double.infinity,
-          height: heightResultPinPoint ?? 270,
           color: Colors.white,
           child: _buildFloatingCard(),
         ),
