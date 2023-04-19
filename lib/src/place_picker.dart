@@ -271,27 +271,28 @@ class _PlacePickerState extends State<PlacePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        if (widget.useAutoCompleteSearch) {
-          searchBarController.clearOverlay();
-        }
-        return Future.value(true);
-      },
-      child: FutureBuilder<PlaceProvider>(
-        future: _futureProvider,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            provider = snapshot.data;
-            final useOnlySearch = widget.useAutoCompleteSearch;
+    final useOnlySearch = widget.useAutoCompleteSearch;
+    return useOnlySearch
+        ? _buildSearchBar(context)
+        : WillPopScope(
+            onWillPop: () {
+              if (widget.useAutoCompleteSearch) {
+                searchBarController.clearOverlay();
+              }
+              return Future.value(true);
+            },
+            child: FutureBuilder<PlaceProvider>(
+              future: _futureProvider,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  provider = snapshot.data;
 
-            return MultiProvider(
-              providers: [
-                ChangeNotifierProvider<PlaceProvider>.value(value: provider!),
-              ],
-              child: useOnlySearch
-                  ? _buildSearchBar(context)
-                  : Scaffold(
+                  return MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider<PlaceProvider>.value(
+                          value: provider!),
+                    ],
+                    child: Scaffold(
                       key: ValueKey<int>(provider.hashCode),
                       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
                       extendBodyBehindAppBar: true,
@@ -306,37 +307,37 @@ class _PlacePickerState extends State<PlacePicker> {
                       ),
                       body: _buildMapWithLocation(),
                     ),
-            );
-          }
+                  );
+                }
 
-          final children = <Widget>[];
-          if (snapshot.hasError) {
-            children.addAll([
-              Icon(
-                Icons.error_outline,
-                color: Theme.of(context).errorColor,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text('Error: ${snapshot.error}'),
-              )
-            ]);
-          } else {
-            children.add(CircularProgressIndicator());
-          }
+                final children = <Widget>[];
+                if (snapshot.hasError) {
+                  children.addAll([
+                    Icon(
+                      Icons.error_outline,
+                      color: Theme.of(context).errorColor,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('Error: ${snapshot.error}'),
+                    )
+                  ]);
+                } else {
+                  children.add(CircularProgressIndicator());
+                }
 
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: children,
-              ),
+                return Scaffold(
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: children,
+                    ),
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget _buildSearchBar(BuildContext context) {
