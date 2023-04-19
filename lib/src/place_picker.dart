@@ -94,7 +94,6 @@ class PlacePicker extends StatefulWidget {
       this.myLocationButtonCooldown = 10,
       this.usePinPointingSearch = true,
       this.usePlaceDetailSearch = false,
-      this.useAutoCompleteSearch = false,
       this.autocompleteOffset,
       this.autocompleteRadius,
       this.autocompleteLanguage,
@@ -113,7 +112,8 @@ class PlacePicker extends StatefulWidget {
       this.hidePlaceDetailsWhenDraggingPin = true,
       this.errorMessageGpsIsDisable = '',
       this.defaultResultPinPointNotFound})
-      : super(key: key);
+      : useAutoCompleteSearch = true,
+        super(key: key);
 
   final String apiKey;
 
@@ -289,23 +289,23 @@ class _PlacePickerState extends State<PlacePicker> {
               providers: [
                 ChangeNotifierProvider<PlaceProvider>.value(value: provider!),
               ],
-              child: Scaffold(
-                key: ValueKey<int>(provider.hashCode),
-                resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-                extendBodyBehindAppBar: true,
-                appBar: AppBar(
-                  key: appBarKey,
-                  automaticallyImplyLeading: false,
-                  iconTheme: Theme.of(context).iconTheme,
-                  elevation: 0,
-                  backgroundColor: Colors.transparent,
-                  titleSpacing: 0.0,
-                  title: useOnlySearch ? null : _buildSearchBar(context),
-                ),
-                body: useOnlySearch
-                    ? _buildSearchBar(context)
-                    : _buildMapWithLocation(),
-              ),
+              child: useOnlySearch
+                  ? _buildSearchBar(context)
+                  : Scaffold(
+                      key: ValueKey<int>(provider.hashCode),
+                      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+                      extendBodyBehindAppBar: true,
+                      appBar: AppBar(
+                        key: appBarKey,
+                        automaticallyImplyLeading: false,
+                        iconTheme: Theme.of(context).iconTheme,
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        titleSpacing: 0.0,
+                        title: _buildSearchBar(context),
+                      ),
+                      body: _buildMapWithLocation(),
+                    ),
             );
           }
 
