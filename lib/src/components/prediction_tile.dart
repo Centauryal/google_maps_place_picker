@@ -10,7 +10,6 @@ class PredictionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.location_on),
       title: RichText(
         text: TextSpan(
           children: _buildPredictionText(context),
