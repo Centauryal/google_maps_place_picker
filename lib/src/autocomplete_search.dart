@@ -15,6 +15,7 @@ class AutoCompleteSearch extends StatefulWidget {
     Key? key,
     required this.sessionToken,
     required this.onPicked,
+    required this.appBarKey,
     this.hintText,
     this.searchingText = "Searching...",
     this.contentPadding,
@@ -51,6 +52,7 @@ class AutoCompleteSearch extends StatefulWidget {
   final List<Component>? autocompleteComponents;
   final bool? strictbounds;
   final String? region;
+  final GlobalKey appBarKey;
   final String? initialSearchString;
   final bool? searchForInitialValue;
   final bool? autocompleteOnTrailingWhitespace;
@@ -123,6 +125,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
 
   Widget _buildSearchTextField(String data) {
     return TextField(
+      key: widget.appBarKey,
       textInputAction: TextInputAction.search,
       controller: controller,
       focusNode: focus,
@@ -301,7 +304,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildSearchingOverlay() {
-    print('testaja');
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       child: Row(
@@ -324,7 +326,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
-    print('testaja1');
     return ListBody(
       children: predictions
           .map(
