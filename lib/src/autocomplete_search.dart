@@ -284,7 +284,8 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   _displayOverlay(Widget overlayChild) {
     _clearOverlay();
 
-    final appBarRenderBox = context.findRenderObject() as RenderBox;
+    final appBarRenderBox =
+        widget.appBarKey.currentContext?.findRenderObject() as RenderBox;
     final size = appBarRenderBox.size;
     final offset = appBarRenderBox.localToGlobal(Offset.zero);
 
