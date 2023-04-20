@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_api_headers/google_api_headers.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_place_picker/providers/place_provider.dart';
 import 'package:google_maps_place_picker/src/autocomplete_search.dart';
 import 'package:google_maps_place_picker/src/controllers/autocomplete_search_controller.dart';
 import 'package:google_maps_place_picker/src/google_map_place_picker.dart';
+import 'package:google_maps_place_picker/src/utils/show_snackbar.dart';
 import 'package:google_maps_place_picker/src/utils/uuid.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart';
@@ -47,7 +47,6 @@ class PlacePicker extends StatefulWidget {
       this.myLocationButtonCooldown = 10,
       this.usePinPointingSearch = true,
       this.usePlaceDetailSearch = false,
-      this.useAutoCompleteSearch = false,
       this.autocompleteOffset,
       this.autocompleteRadius,
       this.autocompleteLanguage,
@@ -66,53 +65,58 @@ class PlacePicker extends StatefulWidget {
       this.hidePlaceDetailsWhenDraggingPin = true,
       this.errorMessageGpsIsDisable = '',
       this.defaultResultPinPointNotFound})
-      : super(key: key);
+      : useAutoCompleteSearch = false,
+        prefixIconData = null,
+        suffixIconData = null,
+        super(key: key);
 
-  PlacePicker.autoCompleteSearch(
-      {Key? key,
-      required this.apiKey,
-      this.onPlacePicked,
-      required this.initialPosition,
-      this.useCurrentLocation,
-      this.desiredLocationAccuracy = LocationAccuracy.high,
-      this.onMapCreated,
-      this.hintText,
-      this.searchingText,
-      // this.searchBarHeight,
-      // this.contentPadding,
-      this.onAutoCompleteFailed,
-      this.onGeocodingSearchFailed,
-      this.proxyBaseUrl,
-      this.httpClient,
-      this.selectedPlaceWidgetBuilder,
-      this.pinBuilder,
-      this.autoCompleteDebounceInMilliseconds = 500,
-      this.cameraMoveDebounceInMilliseconds = 750,
-      this.initialMapType = MapType.normal,
-      this.enableMapTypeButton = true,
-      this.enableMyLocationButton = true,
-      this.myLocationButtonCooldown = 10,
-      this.usePinPointingSearch = true,
-      this.usePlaceDetailSearch = false,
-      this.autocompleteOffset,
-      this.autocompleteRadius,
-      this.autocompleteLanguage,
-      this.autocompleteComponents,
-      this.autocompleteTypes,
-      this.strictbounds,
-      this.region,
-      this.selectInitialPosition = false,
-      this.resizeToAvoidBottomInset = true,
-      this.initialSearchString,
-      this.searchForInitialValue = false,
-      this.forceAndroidLocationManager = false,
-      this.forceSearchOnZoomChanged = false,
-      this.automaticallyImplyAppBarLeading = true,
-      this.autocompleteOnTrailingWhitespace = false,
-      this.hidePlaceDetailsWhenDraggingPin = true,
-      this.errorMessageGpsIsDisable = '',
-      this.defaultResultPinPointNotFound})
-      : useAutoCompleteSearch = true,
+  PlacePicker.autoCompleteSearch({
+    Key? key,
+    required this.apiKey,
+    this.onPlacePicked,
+    required this.initialPosition,
+    this.useCurrentLocation,
+    this.desiredLocationAccuracy = LocationAccuracy.high,
+    this.onMapCreated,
+    this.hintText,
+    this.searchingText,
+    // this.searchBarHeight,
+    // this.contentPadding,
+    this.onAutoCompleteFailed,
+    this.onGeocodingSearchFailed,
+    this.proxyBaseUrl,
+    this.httpClient,
+    this.selectedPlaceWidgetBuilder,
+    this.pinBuilder,
+    this.autoCompleteDebounceInMilliseconds = 500,
+    this.cameraMoveDebounceInMilliseconds = 750,
+    this.initialMapType = MapType.normal,
+    this.enableMapTypeButton = true,
+    this.enableMyLocationButton = true,
+    this.myLocationButtonCooldown = 10,
+    this.usePinPointingSearch = true,
+    this.usePlaceDetailSearch = false,
+    this.autocompleteOffset,
+    this.autocompleteRadius,
+    this.autocompleteLanguage,
+    this.autocompleteComponents,
+    this.autocompleteTypes,
+    this.strictbounds,
+    this.region,
+    this.selectInitialPosition = false,
+    this.resizeToAvoidBottomInset = true,
+    this.initialSearchString,
+    this.searchForInitialValue = false,
+    this.forceAndroidLocationManager = false,
+    this.forceSearchOnZoomChanged = false,
+    this.automaticallyImplyAppBarLeading = true,
+    this.autocompleteOnTrailingWhitespace = false,
+    this.hidePlaceDetailsWhenDraggingPin = true,
+    this.errorMessageGpsIsDisable = '',
+    this.defaultResultPinPointNotFound,
+    this.prefixIconData,
+    this.suffixIconData,
+  })  : useAutoCompleteSearch = true,
         super(key: key);
 
   final String apiKey;
@@ -225,6 +229,10 @@ class PlacePicker extends StatefulWidget {
   /// The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
 
+  /// The widget Autocomplete Search Bar
+  final IconData? prefixIconData;
+  final IconData? suffixIconData;
+
   @override
   _PlacePickerState createState() => _PlacePickerState();
 }
@@ -272,27 +280,26 @@ class _PlacePickerState extends State<PlacePicker> {
   @override
   Widget build(BuildContext context) {
     final useOnlySearch = widget.useAutoCompleteSearch;
-    return useOnlySearch
-        ? _buildSearchBar(context)
-        : WillPopScope(
-            onWillPop: () {
-              if (widget.useAutoCompleteSearch) {
-                searchBarController.clearOverlay();
-              }
-              return Future.value(true);
-            },
-            child: FutureBuilder<PlaceProvider>(
-              future: _futureProvider,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  provider = snapshot.data;
+    return WillPopScope(
+      onWillPop: () {
+        if (widget.useAutoCompleteSearch) {
+          searchBarController.clearOverlay();
+        }
+        return Future.value(true);
+      },
+      child: FutureBuilder<PlaceProvider>(
+        future: _futureProvider,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            provider = snapshot.data;
 
-                  return MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider<PlaceProvider>.value(
-                          value: provider!),
-                    ],
-                    child: Scaffold(
+            return MultiProvider(
+              providers: [
+                ChangeNotifierProvider<PlaceProvider>.value(value: provider!),
+              ],
+              child: useOnlySearch
+                  ? _buildSearchBar(context)
+                  : Scaffold(
                       key: ValueKey<int>(provider.hashCode),
                       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
                       extendBodyBehindAppBar: true,
@@ -303,44 +310,44 @@ class _PlacePickerState extends State<PlacePicker> {
                         elevation: 0,
                         backgroundColor: Colors.transparent,
                         titleSpacing: 0.0,
-                        title: _buildSearchBar(context),
+                        title: _buildAppBar(context),
                       ),
                       body: _buildMapWithLocation(),
                     ),
-                  );
-                }
+            );
+          }
 
-                final children = <Widget>[];
-                if (snapshot.hasError) {
-                  children.addAll([
-                    Icon(
-                      Icons.error_outline,
-                      color: Theme.of(context).errorColor,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text('Error: ${snapshot.error}'),
-                    )
-                  ]);
-                } else {
-                  children.add(CircularProgressIndicator());
-                }
+          final children = <Widget>[];
+          if (snapshot.hasError) {
+            children.addAll([
+              Icon(
+                Icons.error_outline,
+                color: Theme.of(context).errorColor,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Text('Error: ${snapshot.error}'),
+              )
+            ]);
+          } else {
+            children.add(CircularProgressIndicator());
+          }
 
-                return Scaffold(
-                  body: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: children,
-                    ),
-                  ),
-                );
-              },
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: children,
+              ),
             ),
           );
+        },
+      ),
+    );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context) {
     return Row(
       children: <Widget>[
         SizedBox(width: 16),
@@ -401,6 +408,43 @@ class _PlacePickerState extends State<PlacePicker> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: AutoCompleteSearch(
+        appBarKey: appBarKey,
+        searchBarController: searchBarController,
+        sessionToken: provider!.sessionToken,
+        hintText: widget.hintText,
+        searchingText: widget.searchingText,
+        debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
+        onPicked: (prediction) {
+          _pickPrediction(prediction);
+        },
+        onSearchFailed: (status) {
+          if (widget.onAutoCompleteFailed != null) {
+            widget.onAutoCompleteFailed!(status);
+          }
+        },
+        autocompleteOffset: widget.autocompleteOffset,
+        autocompleteRadius: widget.autocompleteRadius,
+        autocompleteLanguage: widget.autocompleteLanguage,
+        autocompleteComponents: widget.autocompleteComponents,
+        autocompleteTypes: widget.autocompleteTypes,
+        strictbounds: widget.strictbounds,
+        region: widget.region,
+        initialSearchString: widget.initialSearchString,
+        searchForInitialValue: widget.searchForInitialValue,
+        autocompleteOnTrailingWhitespace:
+            widget.autocompleteOnTrailingWhitespace,
+        prefixIconData: widget.prefixIconData,
+        suffixIconData: widget.suffixIconData,
+        onTapMyLocation: () async => await myLocationPermission(),
+      ),
     );
   }
 
@@ -506,40 +550,7 @@ class _PlacePickerState extends State<PlacePicker> {
       onToggleMapType: () {
         provider!.switchMapType();
       },
-      onMyLocation: () async {
-        await Permission.location.request();
-        if (await Permission.location.request().isGranted) {
-          // Prevent to click many times in short period.
-          if (provider!.isOnUpdateLocationCooldown == false) {
-            provider!.isOnUpdateLocationCooldown = true;
-            Timer(Duration(seconds: widget.myLocationButtonCooldown), () {
-              provider!.isOnUpdateLocationCooldown = false;
-            });
-            await provider!
-                .updateCurrentLocation(widget.forceAndroidLocationManager);
-            await _moveToCurrentPosition();
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.black,
-            content: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                widget.errorMessageGpsIsDisable,
-                style: GoogleFonts.poppins(
-                    textStyle: Theme.of(context).textTheme.bodyText2!.copyWith(
-                        leadingDistribution: TextLeadingDistribution.even),
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                    height: 20 / 14,
-                    letterSpacing: 0),
-              ),
-            ),
-          ));
-        }
-      },
+      onMyLocation: () async => await myLocationPermission(),
       onMoveStart: () {
         if (widget.useAutoCompleteSearch) {
           searchBarController.reset();
@@ -547,5 +558,23 @@ class _PlacePickerState extends State<PlacePicker> {
       },
       onPlacePicked: widget.onPlacePicked,
     );
+  }
+
+  Future<void> myLocationPermission() async {
+    await Permission.location.request();
+    if (await Permission.location.request().isGranted) {
+      // Prevent to click many times in short period.
+      if (provider!.isOnUpdateLocationCooldown == false) {
+        provider!.isOnUpdateLocationCooldown = true;
+        Timer(Duration(seconds: widget.myLocationButtonCooldown), () {
+          provider!.isOnUpdateLocationCooldown = false;
+        });
+        await provider!
+            .updateCurrentLocation(widget.forceAndroidLocationManager);
+        await _moveToCurrentPosition();
+      }
+    } else {
+      showSnackBar(context, widget.errorMessageGpsIsDisable);
+    }
   }
 }

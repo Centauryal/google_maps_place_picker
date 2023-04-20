@@ -6,39 +6,41 @@ import 'package:google_maps_place_picker/providers/place_provider.dart';
 import 'package:google_maps_place_picker/providers/search_provider.dart';
 import 'package:google_maps_place_picker/src/components/prediction_tile.dart';
 import 'package:google_maps_place_picker/src/controllers/autocomplete_search_controller.dart';
+import 'package:google_maps_place_picker/src/utils/text_style.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:provider/provider.dart';
 
 class AutoCompleteSearch extends StatefulWidget {
-  const AutoCompleteSearch(
-      {Key? key,
-      required this.sessionToken,
-      required this.onPicked,
-      required this.appBarKey,
-      this.hintText,
-      this.searchingText = "Searching...",
-      this.height = 56,
-      this.contentPadding = EdgeInsets.zero,
-      this.debounceMilliseconds,
-      this.onSearchFailed,
-      required this.searchBarController,
-      this.autocompleteOffset,
-      this.autocompleteRadius,
-      this.autocompleteLanguage,
-      this.autocompleteComponents,
-      this.autocompleteTypes,
-      this.strictbounds,
-      this.region,
-      this.initialSearchString,
-      this.searchForInitialValue,
-      this.autocompleteOnTrailingWhitespace})
-      : super(key: key);
+  const AutoCompleteSearch({
+    Key? key,
+    required this.sessionToken,
+    required this.onPicked,
+    required this.appBarKey,
+    this.hintText,
+    this.searchingText = "Searching...",
+    this.contentPadding,
+    this.debounceMilliseconds,
+    this.onSearchFailed,
+    required this.searchBarController,
+    this.autocompleteOffset,
+    this.autocompleteRadius,
+    this.autocompleteLanguage,
+    this.autocompleteComponents,
+    this.autocompleteTypes,
+    this.strictbounds,
+    this.region,
+    this.initialSearchString,
+    this.searchForInitialValue,
+    this.autocompleteOnTrailingWhitespace,
+    this.onTapMyLocation,
+    this.prefixIconData,
+    this.suffixIconData,
+  }) : super(key: key);
 
   final String? sessionToken;
   final String? hintText;
   final String? searchingText;
-  final double height;
-  final EdgeInsetsGeometry contentPadding;
+  final EdgeInsetsGeometry? contentPadding;
   final int? debounceMilliseconds;
   final ValueChanged<Prediction> onPicked;
   final ValueChanged<String>? onSearchFailed;
@@ -54,6 +56,9 @@ class AutoCompleteSearch extends StatefulWidget {
   final String? initialSearchString;
   final bool? searchForInitialValue;
   final bool? autocompleteOnTrailingWhitespace;
+  final VoidCallback? onTapMyLocation;
+  final IconData? prefixIconData;
+  final IconData? suffixIconData;
 
   @override
   AutoCompleteSearchState createState() => AutoCompleteSearchState();
@@ -98,58 +103,122 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: provider,
-      child: RoundedFrame(
-        height: widget.height,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        color: Colors.white,
+      child: _buildSearchBarText(),
+    );
+  }
+
+  static OutlineInputBorder _enabledBorder() => OutlineInputBorder(
         borderRadius: BorderRadius.zero,
-        elevation: 0,
+        borderSide: BorderSide(
+          width: 1,
+          color: Color(0xFF999999),
+        ),
+      );
+
+  static OutlineInputBorder _focusedBorder() => OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(
+          width: 2,
+          color: Color(0xFF12784A),
+        ),
+      );
+
+  Widget _buildSearchTextField(String data) {
+    return TextField(
+      textInputAction: TextInputAction.search,
+      controller: controller,
+      focusNode: focus,
+      style: body2RegularTextStyle(context, Color(0xE6000000)),
+      decoration: InputDecoration(
+        isDense: true,
+        fillColor: Colors.white,
+        filled: true,
+        hintText: widget.hintText,
+        hintStyle: body2RegularTextStyle(context, Color(0x4D000000)),
+        border: InputBorder.none,
+        contentPadding: widget.contentPadding ?? EdgeInsets.all(16),
+        enabledBorder: _enabledBorder(),
+        focusedBorder: _focusedBorder(),
+        prefixIconConstraints: BoxConstraints.tight(
+          Size(44, 24),
+        ),
+        prefixIcon: Icon(
+          widget.prefixIconData ?? Icons.search,
+          color: Color(0xFF999999),
+          size: 24,
+        ),
+        suffixIconConstraints: BoxConstraints.tight(
+          Size(44, 24),
+        ),
+        suffixIcon: data.length > 0
+            ? Material(
+                color: Colors.transparent,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    clearText();
+                  },
+                  child: Icon(
+                    widget.suffixIconData ?? Icons.clear,
+                    color: Color(0xFF999999),
+                    size: 24,
+                  ),
+                ),
+              )
+            : SizedBox(),
+      ),
+    );
+  }
+
+  Widget _buildSearchBarText() {
+    return Selector<SearchProvider, String>(
+        selector: (_, provider) => provider.searchTerm,
+        builder: (_, data, __) {
+          return SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                _buildSearchTextField(data),
+                SizedBox(height: 8),
+                _buildMyCurrentLocationText(),
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _buildMyCurrentLocationText() {
+    return GestureDetector(
+      onTap: widget.onTapMyLocation,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 1, color: Color(0xFFEEEEEE)),
+          ),
+        ),
         child: Row(
-          children: <Widget>[
-            Icon(Icons.search),
-            SizedBox(width: 10),
-            Expanded(child: _buildSearchTextField()),
-            _buildTextClearIcon(),
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(Icons.gps_fixed_outlined, size: 24),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                'Use your current location',
+                style: body2RegularTextStyle(context, Colors.black),
+              ),
+            ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildSearchTextField() {
-    return TextField(
-      controller: controller,
-      focusNode: focus,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        border: InputBorder.none,
-        isDense: true,
-        contentPadding: widget.contentPadding,
-      ),
-    );
-  }
-
-  Widget _buildTextClearIcon() {
-    return Selector<SearchProvider, String>(
-        selector: (_, provider) => provider.searchTerm,
-        builder: (_, data, __) {
-          if (data.length > 0) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: GestureDetector(
-                child: Icon(
-                  Icons.clear,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  clearText();
-                },
-              ),
-            );
-          } else {
-            return SizedBox(width: 10);
-          }
-        });
   }
 
   _onSearchInputChange() {
