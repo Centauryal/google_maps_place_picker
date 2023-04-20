@@ -379,7 +379,6 @@ class _PlacePickerState extends State<PlacePicker> {
             padding: EdgeInsets.only(left: 8),
             child: Expanded(
               child: AutoCompleteSearch(
-                  appBarKey: appBarKey,
                   searchBarController: searchBarController,
                   sessionToken: provider!.sessionToken,
                   hintText: widget.hintText,
@@ -416,7 +415,6 @@ class _PlacePickerState extends State<PlacePicker> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: AutoCompleteSearch(
-        appBarKey: appBarKey,
         searchBarController: searchBarController,
         sessionToken: provider!.sessionToken,
         hintText: widget.hintText,

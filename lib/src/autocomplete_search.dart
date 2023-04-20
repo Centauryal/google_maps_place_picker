@@ -15,7 +15,6 @@ class AutoCompleteSearch extends StatefulWidget {
     Key? key,
     required this.sessionToken,
     required this.onPicked,
-    required this.appBarKey,
     this.hintText,
     this.searchingText = "Searching...",
     this.contentPadding,
@@ -52,7 +51,6 @@ class AutoCompleteSearch extends StatefulWidget {
   final List<Component>? autocompleteComponents;
   final bool? strictbounds;
   final String? region;
-  final GlobalKey appBarKey;
   final String? initialSearchString;
   final bool? searchForInitialValue;
   final bool? autocompleteOnTrailingWhitespace;
@@ -183,7 +181,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
               children: [
                 _buildSearchTextField(data),
                 SizedBox(height: 8),
-                _buildMyCurrentLocationText(),
+                if (data.length < 1) _buildMyCurrentLocationText(),
               ],
             ),
           );
@@ -283,15 +281,15 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   _displayOverlay(Widget overlayChild) {
     _clearOverlay();
 
-    final RenderBox? appBarRenderBox =
-        widget.appBarKey.currentContext!.findRenderObject() as RenderBox?;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final appBarRenderBox = context.findRenderObject() as RenderBox;
+    final size = appBarRenderBox.size;
+    final offset = appBarRenderBox.localToGlobal(Offset.zero);
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: appBarRenderBox!.size.height,
-        left: screenWidth * 0.025,
-        right: screenWidth * 0.025,
+        top: offset.dy + size.height + 8,
+        left: offset.dx,
+        right: offset.dx,
         child: Material(
           elevation: 4.0,
           child: overlayChild,
