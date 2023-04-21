@@ -292,7 +292,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: offset.dy + size.height + 8,
+        top: offset.dy + size.height + 16,
         left: offset.dx,
         right: offset.dx,
         child: Material(
@@ -364,28 +364,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         strictbounds: widget.strictbounds ?? false,
         region: widget.region,
       );
-
-      response.predictions.forEach((element) {
-        print('testaja ${element.toJson()}');
-        print('testaja1 ${element.structuredFormatting?.mainText}');
-        print('testaja2 ${element.structuredFormatting?.secondaryText}');
-
-        element.structuredFormatting?.mainTextMatchedSubstrings.forEach((e) {
-          print('testaja3 ${e.toJson()}');
-        });
-
-        if (element.types.first == 'locality') {
-          print('testaja4 ${element.description}');
-        }
-        if (element.types.first == 'political') {
-          print('testaja5 ${element.description}');
-        }
-        if (element.types.first == 'geocode') {
-          print('testaja6 ${element.description}');
-        }
-        print('testaja7 ${element.types}');
-        print('testaja8 ${element.types.first}');
-      });
 
       if (response.errorMessage?.isNotEmpty == true ||
           response.status == "REQUEST_DENIED") {

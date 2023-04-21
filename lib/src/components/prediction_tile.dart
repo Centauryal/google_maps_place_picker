@@ -10,23 +10,35 @@ class PredictionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: prediction.structuredFormatting?.mainText != null
-          ? Text(
-              prediction.structuredFormatting?.mainText ?? '',
-              style: body2BoldTextStyle(context, Colors.black),
-            )
-          : null,
-      subtitle: RichText(
-        text: TextSpan(
-          children: _buildPredictionText(context),
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(width: 1, color: Color(0xFFEEEEEE)),
         ),
       ),
-      onTap: () {
-        if (onTap != null) {
-          onTap!(prediction);
-        }
-      },
+      child: ListTile(
+        title: prediction.structuredFormatting?.mainText != null
+            ? Text(
+                prediction.structuredFormatting?.mainText ?? '',
+                style: body2BoldTextStyle(context, Colors.black),
+              )
+            : null,
+        subtitle: RichText(
+          text: TextSpan(
+            children: _buildPredictionText(context),
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        contentPadding: EdgeInsets.zero,
+        onTap: () {
+          if (onTap != null) {
+            onTap!(prediction);
+          }
+        },
+      ),
     );
   }
 
