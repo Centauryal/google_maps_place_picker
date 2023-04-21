@@ -65,7 +65,7 @@ class PlacePicker extends StatefulWidget {
     this.hidePlaceDetailsWhenDraggingPin = true,
     this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
-    this.predictionFromSearch,
+    this.placeIdFromSearch,
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
@@ -120,7 +120,7 @@ class PlacePicker extends StatefulWidget {
     this.prefixIconData,
     this.suffixIconData,
   })  : useAutoCompleteSearch = true,
-        predictionFromSearch = null,
+        placeIdFromSearch = null,
         super(key: key);
 
   final String apiKey;
@@ -239,10 +239,10 @@ class PlacePicker extends StatefulWidget {
 
   /// By using the default settings of the autocomplete search,
   /// results will appear when the user types the location he is looking for.
-  final ValueChanged<Prediction>? onPickedSearch;
+  final ValueChanged<String>? onPickedSearch;
 
-  /// Prediction results from autocomplete search, can only be used when using a map
-  final Prediction? predictionFromSearch;
+  /// PlaceId results from autocomplete search, can only be used when using a map
+  final String? placeIdFromSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -435,7 +435,7 @@ class _PlacePickerState extends State<PlacePicker> {
         debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
         onPicked: (prediction) {
           if (widget.useAutoCompleteSearch) {
-            widget.onPickedSearch!(prediction);
+            widget.onPickedSearch!(prediction.placeId ?? '');
           } else {
             _pickPrediction(prediction);
           }
@@ -466,12 +466,13 @@ class _PlacePickerState extends State<PlacePicker> {
   _pickPrediction(Prediction prediction) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
-    final usePrediction =
-        widget.useAutoCompleteSearch ? widget.predictionFromSearch : prediction;
+    final usePredictionPlaceId = widget.useAutoCompleteSearch
+        ? widget.placeIdFromSearch
+        : prediction.placeId!;
 
     final PlacesDetailsResponse response =
         await provider!.places.getDetailsByPlaceId(
-      usePrediction?.placeId ?? prediction.placeId!,
+      usePredictionPlaceId ?? '',
       sessionToken: provider!.sessionToken,
       language: widget.autocompleteLanguage,
     );
