@@ -11,7 +11,6 @@ class PredictionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -32,7 +31,7 @@ class PredictionTile extends StatelessWidget {
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
-        contentPadding: EdgeInsets.zero,
+        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         onTap: () {
           if (onTap != null) {
             onTap!(prediction);
