@@ -398,7 +398,7 @@ class _PlacePickerState extends State<PlacePicker> {
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
-                    _pickPrediction(prediction);
+                    _pickPrediction(prediction.placeId);
                   },
                   onSearchFailed: (status) {
                     if (widget.onAutoCompleteFailed != null) {
@@ -437,7 +437,7 @@ class _PlacePickerState extends State<PlacePicker> {
           if (widget.useAutoCompleteSearch) {
             widget.onPickedSearch!(prediction.placeId ?? '');
           } else {
-            _pickPrediction(prediction);
+            _pickPrediction(prediction.placeId);
           }
         },
         onSearchFailed: (status) {
@@ -463,16 +463,12 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _pickPrediction(Prediction prediction) async {
+  _pickPrediction(String? predictionPlaceId) async {
     provider!.placeSearchingState = SearchingState.Searching;
-
-    final usePredictionPlaceId = widget.useAutoCompleteSearch
-        ? widget.placeIdFromSearch
-        : prediction.placeId!;
 
     final PlacesDetailsResponse response =
         await provider!.places.getDetailsByPlaceId(
-      usePredictionPlaceId ?? '',
+      predictionPlaceId ?? '',
       sessionToken: provider!.sessionToken,
       language: widget.autocompleteLanguage,
     );
@@ -518,6 +514,10 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
+    if (widget.placeIdFromSearch != null &&
+        widget.placeIdFromSearch?.isNotEmpty == true) {
+      _pickPrediction(widget.placeIdFromSearch);
+    }
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
