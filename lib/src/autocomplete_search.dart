@@ -129,6 +129,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
       textInputAction: TextInputAction.search,
       controller: controller,
       focusNode: focus,
+      textCapitalization: TextCapitalization.sentences,
       style: body2RegularTextStyle(context, Color(0xE6000000)),
       decoration: InputDecoration(
         isDense: true,
@@ -151,7 +152,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         suffixIconConstraints: BoxConstraints.tight(
           Size(44, 24),
         ),
-        suffixIcon: data.length > 0
+        suffixIcon: data.length > 0 && focus.hasFocus
             ? Material(
                 color: Colors.transparent,
                 shape: const CircleBorder(),
@@ -169,7 +170,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
                   ),
                 ),
               )
-            : SizedBox(),
+            : null,
       ),
     );
   }
@@ -363,6 +364,15 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         strictbounds: widget.strictbounds ?? false,
         region: widget.region,
       );
+
+      response.predictions.forEach((element) {
+        print('testaja ${element.toJson()}');
+        print('testaja1 ${element.structuredFormatting?.mainText}');
+        print('testaja2 ${element.structuredFormatting?.secondaryText}');
+        print(
+            'testaja3 ${element.structuredFormatting?.mainTextMatchedSubstrings}');
+        print('testaja4 ${element.reference}');
+      });
 
       if (response.errorMessage?.isNotEmpty == true ||
           response.status == "REQUEST_DENIED") {
