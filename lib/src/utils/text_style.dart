@@ -13,3 +13,29 @@ TextStyle body2RegularTextStyle(BuildContext context, Color color) {
       height: 20 / 14,
       letterSpacing: 0);
 }
+
+TextStyle body2MediumTextStyle(BuildContext context, Color color) {
+  return GoogleFonts.poppins(
+      textStyle: Theme.of(context)
+          .textTheme
+          .bodyText2!
+          .copyWith(leadingDistribution: TextLeadingDistribution.even),
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w500,
+      height: 20 / 14,
+      letterSpacing: 0);
+}
+
+TextStyle body2BoldTextStyle(BuildContext context, Color color) {
+  return GoogleFonts.poppins(
+      textStyle: Theme.of(context)
+          .textTheme
+          .bodyText2!
+          .copyWith(leadingDistribution: TextLeadingDistribution.even),
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.bold,
+      height: 20 / 14,
+      letterSpacing: 0);
+}

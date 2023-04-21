@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_place_picker/src/utils/text_style.dart';
 import 'package:google_maps_webservice/places.dart';
 
 class PredictionTile extends StatelessWidget {
@@ -10,7 +11,13 @@ class PredictionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: RichText(
+      title: prediction.structuredFormatting?.mainText != null
+          ? Text(
+              prediction.structuredFormatting?.mainText ?? '',
+              style: body2BoldTextStyle(context, Colors.black),
+            )
+          : null,
+      subtitle: RichText(
         text: TextSpan(
           children: _buildPredictionText(context),
         ),
@@ -25,7 +32,6 @@ class PredictionTile extends StatelessWidget {
 
   List<TextSpan> _buildPredictionText(BuildContext context) {
     final List<TextSpan> result = <TextSpan>[];
-    final textColor = Theme.of(context).textTheme.bodyText2!.color;
 
     if (prediction.matchedSubstrings.length > 0) {
       MatchedSubstring matchedSubString = prediction.matchedSubstrings[0];
@@ -35,8 +41,7 @@ class PredictionTile extends StatelessWidget {
           TextSpan(
             text: prediction.description
                 ?.substring(0, matchedSubString.offset as int?),
-            style: TextStyle(
-                color: textColor, fontSize: 16, fontWeight: FontWeight.w300),
+            style: body2RegularTextStyle(context, Color(0x99000000)),
           ),
         );
       }
@@ -47,8 +52,7 @@ class PredictionTile extends StatelessWidget {
           text: prediction.description?.substring(
               matchedSubString.offset as int,
               matchedSubString.offset + matchedSubString.length as int?),
-          style: TextStyle(
-              color: textColor, fontSize: 16, fontWeight: FontWeight.w500),
+          style: body2MediumTextStyle(context, Color(0x99000000)),
         ),
       );
 
@@ -59,8 +63,7 @@ class PredictionTile extends StatelessWidget {
           TextSpan(
             text: prediction.description?.substring(
                 matchedSubString.offset + matchedSubString.length as int),
-            style: TextStyle(
-                color: textColor, fontSize: 16, fontWeight: FontWeight.w300),
+            style: body2RegularTextStyle(context, Color(0x99000000)),
           ),
         );
       }
@@ -69,8 +72,7 @@ class PredictionTile extends StatelessWidget {
       result.add(
         TextSpan(
           text: prediction.description,
-          style: TextStyle(
-              color: textColor, fontSize: 16, fontWeight: FontWeight.w300),
+          style: body2RegularTextStyle(context, Color(0x99000000)),
         ),
       );
     }
