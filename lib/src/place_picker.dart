@@ -21,56 +21,7 @@ enum PinState { Preparing, Idle, Dragging }
 enum SearchingState { Idle, Searching }
 
 class PlacePicker extends StatefulWidget {
-  PlacePicker(
-      {Key? key,
-      required this.apiKey,
-      this.onPlacePicked,
-      required this.initialPosition,
-      this.useCurrentLocation,
-      this.desiredLocationAccuracy = LocationAccuracy.high,
-      this.onMapCreated,
-      this.hintText,
-      this.searchingText,
-      // this.searchBarHeight,
-      // this.contentPadding,
-      this.onAutoCompleteFailed,
-      this.onGeocodingSearchFailed,
-      this.proxyBaseUrl,
-      this.httpClient,
-      this.selectedPlaceWidgetBuilder,
-      this.pinBuilder,
-      this.autoCompleteDebounceInMilliseconds = 500,
-      this.cameraMoveDebounceInMilliseconds = 750,
-      this.initialMapType = MapType.normal,
-      this.enableMapTypeButton = true,
-      this.enableMyLocationButton = true,
-      this.myLocationButtonCooldown = 10,
-      this.usePinPointingSearch = true,
-      this.usePlaceDetailSearch = false,
-      this.autocompleteOffset,
-      this.autocompleteRadius,
-      this.autocompleteLanguage,
-      this.autocompleteComponents,
-      this.autocompleteTypes,
-      this.strictbounds,
-      this.region,
-      this.selectInitialPosition = false,
-      this.resizeToAvoidBottomInset = true,
-      this.initialSearchString,
-      this.searchForInitialValue = false,
-      this.forceAndroidLocationManager = false,
-      this.forceSearchOnZoomChanged = false,
-      this.automaticallyImplyAppBarLeading = true,
-      this.autocompleteOnTrailingWhitespace = false,
-      this.hidePlaceDetailsWhenDraggingPin = true,
-      this.errorMessageGpsIsDisable = '',
-      this.defaultResultPinPointNotFound})
-      : useAutoCompleteSearch = false,
-        prefixIconData = null,
-        suffixIconData = null,
-        super(key: key);
-
-  PlacePicker.autoCompleteSearch({
+  PlacePicker({
     Key? key,
     required this.apiKey,
     this.onPlacePicked,
@@ -114,9 +65,62 @@ class PlacePicker extends StatefulWidget {
     this.hidePlaceDetailsWhenDraggingPin = true,
     this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
+    this.predictionFromSearch,
+  })  : useAutoCompleteSearch = false,
+        prefixIconData = null,
+        suffixIconData = null,
+        onPickedSearch = null,
+        super(key: key);
+
+  PlacePicker.autoCompleteSearch({
+    Key? key,
+    required this.apiKey,
+    this.onPlacePicked,
+    required this.initialPosition,
+    required this.onPickedSearch,
+    this.useCurrentLocation,
+    this.desiredLocationAccuracy = LocationAccuracy.high,
+    this.onMapCreated,
+    this.hintText,
+    this.searchingText,
+    // this.searchBarHeight,
+    // this.contentPadding,
+    this.onAutoCompleteFailed,
+    this.onGeocodingSearchFailed,
+    this.proxyBaseUrl,
+    this.httpClient,
+    this.selectedPlaceWidgetBuilder,
+    this.pinBuilder,
+    this.autoCompleteDebounceInMilliseconds = 500,
+    this.cameraMoveDebounceInMilliseconds = 750,
+    this.initialMapType = MapType.normal,
+    this.enableMapTypeButton = true,
+    this.enableMyLocationButton = true,
+    this.myLocationButtonCooldown = 10,
+    this.usePinPointingSearch = true,
+    this.usePlaceDetailSearch = false,
+    this.autocompleteOffset,
+    this.autocompleteRadius,
+    this.autocompleteLanguage,
+    this.autocompleteComponents,
+    this.autocompleteTypes,
+    this.strictbounds,
+    this.region,
+    this.selectInitialPosition = false,
+    this.resizeToAvoidBottomInset = true,
+    this.initialSearchString,
+    this.searchForInitialValue = false,
+    this.forceAndroidLocationManager = false,
+    this.forceSearchOnZoomChanged = false,
+    this.automaticallyImplyAppBarLeading = true,
+    this.autocompleteOnTrailingWhitespace = false,
+    this.hidePlaceDetailsWhenDraggingPin = true,
+    this.errorMessageGpsIsDisable = '',
+    this.defaultResultPinPointNotFound,
     this.prefixIconData,
     this.suffixIconData,
   })  : useAutoCompleteSearch = true,
+        predictionFromSearch = null,
         super(key: key);
 
   final String apiKey;
@@ -232,6 +236,13 @@ class PlacePicker extends StatefulWidget {
   /// The widget Autocomplete Search Bar
   final IconData? prefixIconData;
   final IconData? suffixIconData;
+
+  /// By using the default settings of the autocomplete search,
+  /// results will appear when the user types the location he is looking for.
+  final ValueChanged<Prediction>? onPickedSearch;
+
+  /// Prediction results from autocomplete search, can only be used when using a map
+  final Prediction? predictionFromSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -423,7 +434,11 @@ class _PlacePickerState extends State<PlacePicker> {
         searchingText: widget.searchingText,
         debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
         onPicked: (prediction) {
-          _pickPrediction(prediction);
+          if (widget.useAutoCompleteSearch) {
+            widget.onPickedSearch!(prediction);
+          } else {
+            _pickPrediction(prediction);
+          }
         },
         onSearchFailed: (status) {
           if (widget.onAutoCompleteFailed != null) {
@@ -451,9 +466,12 @@ class _PlacePickerState extends State<PlacePicker> {
   _pickPrediction(Prediction prediction) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
+    final usePrediction =
+        widget.useAutoCompleteSearch ? widget.predictionFromSearch : prediction;
+
     final PlacesDetailsResponse response =
         await provider!.places.getDetailsByPlaceId(
-      prediction.placeId!,
+      usePrediction?.placeId ?? prediction.placeId!,
       sessionToken: provider!.sessionToken,
       language: widget.autocompleteLanguage,
     );
