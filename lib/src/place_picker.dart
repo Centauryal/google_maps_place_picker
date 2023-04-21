@@ -514,10 +514,6 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    if (widget.placeIdFromSearch != null &&
-        widget.placeIdFromSearch?.isNotEmpty == true) {
-      _pickPrediction(widget.placeIdFromSearch);
-    }
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -549,6 +545,10 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMap(LatLng initialTarget) {
+    if (widget.placeIdFromSearch != null &&
+        widget.placeIdFromSearch?.isNotEmpty == true) {
+      _pickPrediction(widget.placeIdFromSearch);
+    }
     return GoogleMapPlacePicker(
       initialTarget: initialTarget,
       appBarKey: appBarKey,
