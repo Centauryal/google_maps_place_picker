@@ -530,11 +530,14 @@ class _PlacePickerState extends State<PlacePicker> {
               return const Center(child: CircularProgressIndicator());
             } else {
               if (provider!.currentPosition == null) {
+                print('testaja 1');
                 return _buildMap(widget.initialPosition);
               } else if (isPlaceIdNotNull) {
+                print('testaja 2');
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
               } else {
+                print('testaja 3');
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
               }
@@ -547,9 +550,11 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (isPlaceIdNotNull) {
+            print('testaja 4');
             return _buildMap(LatLng(provider!.currentPosition!.latitude,
                 provider!.currentPosition!.longitude));
           } else {
+            print('testaja 5');
             return _buildMap(widget.initialPosition);
           }
         },
