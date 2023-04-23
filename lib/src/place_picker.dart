@@ -65,7 +65,6 @@ class PlacePicker extends StatefulWidget {
     this.hidePlaceDetailsWhenDraggingPin = true,
     this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
-    this.placeIdFromSearch,
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
@@ -120,7 +119,6 @@ class PlacePicker extends StatefulWidget {
     this.prefixIconData,
     this.suffixIconData,
   })  : useAutoCompleteSearch = true,
-        placeIdFromSearch = null,
         super(key: key);
 
   final String apiKey;
@@ -238,11 +236,8 @@ class PlacePicker extends StatefulWidget {
   final IconData? suffixIconData;
 
   /// By using the default settings of the autocomplete search,
-  /// results will appear when the user types the location he is looking for.
-  final ValueChanged<String>? onPickedSearch;
-
-  /// PlaceId results from autocomplete search, can only be used when using a map
-  final String? placeIdFromSearch;
+  /// results will appear when the user types the location is looking for.
+  final ValueChanged<LatLng>? onPickedSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -303,11 +298,6 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
-            final isPlaceIdNotNull = widget.placeIdFromSearch != null &&
-                widget.placeIdFromSearch?.isNotEmpty == true;
-            if (isPlaceIdNotNull) {
-              _pickPrediction(widget.placeIdFromSearch);
-            }
 
             return MultiProvider(
               providers: [
@@ -403,7 +393,7 @@ class _PlacePickerState extends State<PlacePicker> {
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
-                    _pickPrediction(prediction.placeId);
+                    _pickPrediction(prediction);
                   },
                   onSearchFailed: (status) {
                     if (widget.onAutoCompleteFailed != null) {
@@ -439,11 +429,7 @@ class _PlacePickerState extends State<PlacePicker> {
         searchingText: widget.searchingText,
         debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
         onPicked: (prediction) {
-          if (widget.useAutoCompleteSearch) {
-            widget.onPickedSearch!(prediction.placeId ?? '');
-          } else {
-            _pickPrediction(prediction.placeId);
-          }
+          _pickPrediction(prediction);
         },
         onSearchFailed: (status) {
           if (widget.onAutoCompleteFailed != null) {
@@ -468,12 +454,12 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _pickPrediction(String? predictionPlaceId) async {
+  _pickPrediction(Prediction prediction) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
     final PlacesDetailsResponse response =
         await provider!.places.getDetailsByPlaceId(
-      predictionPlaceId ?? '',
+      prediction.placeId!,
       sessionToken: provider!.sessionToken,
       language: widget.autocompleteLanguage,
     );
@@ -490,6 +476,10 @@ class _PlacePickerState extends State<PlacePicker> {
 
     // Prevents searching again by camera movement.
     provider!.isAutoCompleteSearching = true;
+
+    final pickedSearch = LatLng(provider!.selectedPlace!.geometry!.location.lat,
+        provider!.selectedPlace!.geometry!.location.lng);
+    widget.onPickedSearch!(pickedSearch);
 
     await _moveTo(provider!.selectedPlace!.geometry!.location.lat,
         provider!.selectedPlace!.geometry!.location.lng);
@@ -519,8 +509,6 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    final isPlaceIdNotNull = widget.placeIdFromSearch != null &&
-        widget.placeIdFromSearch?.isNotEmpty == true;
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -530,14 +518,8 @@ class _PlacePickerState extends State<PlacePicker> {
               return const Center(child: CircularProgressIndicator());
             } else {
               if (provider!.currentPosition == null) {
-                print('testaja 1');
                 return _buildMap(widget.initialPosition);
-              } else if (isPlaceIdNotNull) {
-                print('testaja 2');
-                return _buildMap(LatLng(provider!.currentPosition!.latitude,
-                    provider!.currentPosition!.longitude));
               } else {
-                print('testaja 3');
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
               }
@@ -549,12 +531,7 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (isPlaceIdNotNull) {
-            print('testaja 4');
-            return _buildMap(LatLng(provider!.currentPosition!.latitude,
-                provider!.currentPosition!.longitude));
           } else {
-            print('testaja 5');
             return _buildMap(widget.initialPosition);
           }
         },
