@@ -68,7 +68,6 @@ class PlacePicker extends StatefulWidget {
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
-        onPickedSearch = null,
         super(key: key);
 
   PlacePicker.autoCompleteSearch({
@@ -76,7 +75,6 @@ class PlacePicker extends StatefulWidget {
     required this.apiKey,
     this.onPlacePicked,
     required this.initialPosition,
-    required this.onPickedSearch,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
@@ -234,10 +232,6 @@ class PlacePicker extends StatefulWidget {
   /// The widget Autocomplete Search Bar
   final IconData? prefixIconData;
   final IconData? suffixIconData;
-
-  /// By using the default settings of the autocomplete search,
-  /// results will appear when the user types the location is looking for.
-  final ValueChanged<LatLng>? onPickedSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -476,10 +470,6 @@ class _PlacePickerState extends State<PlacePicker> {
 
     // Prevents searching again by camera movement.
     provider!.isAutoCompleteSearching = true;
-
-    final pickedSearch = LatLng(provider!.selectedPlace!.geometry!.location.lat,
-        provider!.selectedPlace!.geometry!.location.lng);
-    widget.onPickedSearch!(pickedSearch);
 
     await _moveTo(provider!.selectedPlace!.geometry!.location.lat,
         provider!.selectedPlace!.geometry!.location.lng);
