@@ -68,6 +68,7 @@ class PlacePicker extends StatefulWidget {
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
+        onPickedSearch = null,
         super(key: key);
 
   PlacePicker.autoCompleteSearch({
@@ -75,6 +76,7 @@ class PlacePicker extends StatefulWidget {
     required this.apiKey,
     this.onPlacePicked,
     required this.initialPosition,
+    required this.onPickedSearch,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
@@ -232,6 +234,8 @@ class PlacePicker extends StatefulWidget {
   /// The widget Autocomplete Search Bar
   final IconData? prefixIconData;
   final IconData? suffixIconData;
+
+  final VoidCallback? onPickedSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
