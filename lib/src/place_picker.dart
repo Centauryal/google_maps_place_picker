@@ -519,6 +519,8 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
+    final isPlaceIdNotNull = widget.placeIdFromSearch != null &&
+        widget.placeIdFromSearch?.isNotEmpty == true;
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -529,6 +531,9 @@ class _PlacePickerState extends State<PlacePicker> {
             } else {
               if (provider!.currentPosition == null) {
                 return _buildMap(widget.initialPosition);
+              } else if (isPlaceIdNotNull) {
+                return _buildMap(LatLng(provider!.currentPosition!.latitude,
+                    provider!.currentPosition!.longitude));
               } else {
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
@@ -541,6 +546,9 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          } else if (isPlaceIdNotNull) {
+            return _buildMap(LatLng(provider!.currentPosition!.latitude,
+                provider!.currentPosition!.longitude));
           } else {
             return _buildMap(widget.initialPosition);
           }
