@@ -303,6 +303,11 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
+            final isPlaceIdNotNull = widget.placeIdFromSearch != null &&
+                widget.placeIdFromSearch?.isNotEmpty == true;
+            if (isPlaceIdNotNull) {
+              _pickPrediction(widget.placeIdFromSearch);
+            }
 
             return MultiProvider(
               providers: [
@@ -514,10 +519,6 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    if (widget.placeIdFromSearch != null &&
-        widget.placeIdFromSearch?.isNotEmpty == true) {
-      _pickPrediction(widget.placeIdFromSearch);
-    }
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
