@@ -308,6 +308,7 @@ class _PlacePickerState extends State<PlacePicker> {
                 widget.placeIdFromSearch?.isNotEmpty == true;
 
             if (isPlaceIdNotNull) {
+              Future.delayed(Duration(seconds: 1));
               _pickPrediction(widget.placeIdFromSearch ?? '');
             }
 
