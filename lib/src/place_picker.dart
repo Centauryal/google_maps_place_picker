@@ -9,6 +9,7 @@ import 'package:google_maps_place_picker/providers/place_provider.dart';
 import 'package:google_maps_place_picker/src/autocomplete_search.dart';
 import 'package:google_maps_place_picker/src/controllers/autocomplete_search_controller.dart';
 import 'package:google_maps_place_picker/src/google_map_place_picker.dart';
+import 'package:google_maps_place_picker/src/mixin/automatic_transition_mixin.dart';
 import 'package:google_maps_place_picker/src/utils/show_snackbar.dart';
 import 'package:google_maps_place_picker/src/utils/uuid.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -248,7 +249,8 @@ class PlacePicker extends StatefulWidget {
   _PlacePickerState createState() => _PlacePickerState();
 }
 
-class _PlacePickerState extends State<PlacePicker> {
+class _PlacePickerState extends State<PlacePicker>
+    with AutomaticTransitionMixin {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
@@ -271,19 +273,6 @@ class _PlacePickerState extends State<PlacePicker> {
     }
 
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
-          widget.placeIdFromSearch?.isNotEmpty == true;
-
-      if (isPlaceIdNotNull) {
-        _pickPrediction(widget.placeIdFromSearch ?? '');
-      }
-    });
   }
 
   Future<PlaceProvider> _initPlaceProvider() async {
@@ -600,5 +589,21 @@ class _PlacePickerState extends State<PlacePicker> {
     } else {
       showSnackBar(context, widget.errorMessageGpsIsDisable);
     }
+  }
+
+  Future<void> getPlaceIdFromSearch() async {
+    if (!mounted) return;
+
+    final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
+        widget.placeIdFromSearch?.isNotEmpty == true;
+
+    if (isPlaceIdNotNull) {
+      _pickPrediction(widget.placeIdFromSearch ?? '');
+    }
+  }
+
+  @override
+  void onTransitionFinished() {
+    getPlaceIdFromSearch();
   }
 }
