@@ -67,10 +67,12 @@ class PlacePicker extends StatefulWidget {
     this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
     this.placeIdFromSearch,
+    this.useMyLocationFromSearch,
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
         onPickedSearch = null,
+        onTapMyLocationFromSearch = null,
         super(key: key);
 
   PlacePicker.autoCompleteSearch({
@@ -79,6 +81,7 @@ class PlacePicker extends StatefulWidget {
     this.onPlacePicked,
     required this.initialPosition,
     required this.onPickedSearch,
+    required this.onTapMyLocationFromSearch,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
@@ -122,6 +125,7 @@ class PlacePicker extends StatefulWidget {
     this.suffixIconData,
   })  : useAutoCompleteSearch = true,
         placeIdFromSearch = null,
+        useMyLocationFromSearch = null,
         super(key: key);
 
   final String apiKey;
@@ -244,6 +248,10 @@ class PlacePicker extends StatefulWidget {
 
   /// PlaceId results from autocomplete search, can only be used when using a map
   final String? placeIdFromSearch;
+
+  /// Use My current location from search to using a map
+  final VoidCallback? onTapMyLocationFromSearch;
+  final bool? useMyLocationFromSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -456,7 +464,7 @@ class _PlacePickerState extends State<PlacePicker>
             widget.autocompleteOnTrailingWhitespace,
         prefixIconData: widget.prefixIconData,
         suffixIconData: widget.suffixIconData,
-        onTapMyLocation: () async => await myLocationPermission(),
+        onTapMyLocation: widget.onTapMyLocationFromSearch,
       ),
     );
   }
@@ -599,6 +607,10 @@ class _PlacePickerState extends State<PlacePicker>
 
     if (isPlaceIdNotNull) {
       _pickPrediction(widget.placeIdFromSearch ?? '');
+    }
+
+    if (widget.useMyLocationFromSearch == true) {
+      await myLocationPermission();
     }
   }
 
