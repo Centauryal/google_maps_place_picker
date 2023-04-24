@@ -65,6 +65,7 @@ class PlacePicker extends StatefulWidget {
     this.hidePlaceDetailsWhenDraggingPin = true,
     this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
+    this.placeIdFromSearch,
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
@@ -119,6 +120,7 @@ class PlacePicker extends StatefulWidget {
     this.prefixIconData,
     this.suffixIconData,
   })  : useAutoCompleteSearch = true,
+        placeIdFromSearch = null,
         super(key: key);
 
   final String apiKey;
@@ -235,7 +237,12 @@ class PlacePicker extends StatefulWidget {
   final IconData? prefixIconData;
   final IconData? suffixIconData;
 
-  final VoidCallback? onPickedSearch;
+  /// By using the default settings of the autocomplete search,
+  /// results will appear when the user types the location is looking for.
+  final ValueChanged<String>? onPickedSearch;
+
+  /// PlaceId results from autocomplete search, can only be used when using a map
+  final String? placeIdFromSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -296,6 +303,13 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
+
+            final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
+                widget.placeIdFromSearch?.isNotEmpty == true;
+
+            if (isPlaceIdNotNull) {
+              _pickPrediction(widget.placeIdFromSearch ?? '');
+            }
 
             return MultiProvider(
               providers: [
@@ -391,7 +405,7 @@ class _PlacePickerState extends State<PlacePicker> {
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
-                    _pickPrediction(prediction);
+                    _pickPrediction(prediction.placeId ?? '');
                   },
                   onSearchFailed: (status) {
                     if (widget.onAutoCompleteFailed != null) {
@@ -427,8 +441,7 @@ class _PlacePickerState extends State<PlacePicker> {
         searchingText: widget.searchingText,
         debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
         onPicked: (prediction) {
-          Navigator.pop(context);
-          _pickPrediction(prediction);
+          widget.onPickedSearch!(prediction.placeId ?? '');
         },
         onSearchFailed: (status) {
           if (widget.onAutoCompleteFailed != null) {
@@ -453,12 +466,12 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _pickPrediction(Prediction prediction) async {
+  _pickPrediction(String placeId) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
     final PlacesDetailsResponse response =
         await provider!.places.getDetailsByPlaceId(
-      prediction.placeId!,
+      placeId,
       sessionToken: provider!.sessionToken,
       language: widget.autocompleteLanguage,
     );
