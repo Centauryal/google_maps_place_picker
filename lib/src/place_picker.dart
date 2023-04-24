@@ -323,6 +323,7 @@ class _PlacePickerState extends State<PlacePicker>
                   : Scaffold(
                       key: ValueKey<int>(provider.hashCode),
                       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+                      extendBodyBehindAppBar: true,
                       appBar: AppBar(
                         key: appBarKey,
                         automaticallyImplyLeading: false,
