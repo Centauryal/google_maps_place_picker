@@ -615,7 +615,7 @@ class _PlacePickerState extends State<PlacePicker>
   }
 
   @override
-  void onTransitionFinished() {
-    getPlaceIdFromSearch();
+  Future<void> onTransitionFinished() async {
+    await getPlaceIdFromSearch();
   }
 }
