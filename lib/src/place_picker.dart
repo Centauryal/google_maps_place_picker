@@ -273,6 +273,19 @@ class _PlacePickerState extends State<PlacePicker> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
+          widget.placeIdFromSearch?.isNotEmpty == true;
+
+      if (isPlaceIdNotNull) {
+        _pickPrediction(widget.placeIdFromSearch ?? '');
+      }
+    });
+  }
+
   Future<PlaceProvider> _initPlaceProvider() async {
     final headers = await GoogleApiHeaders().getHeaders();
     final provider = PlaceProvider(
@@ -303,14 +316,6 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
-
-            final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
-                widget.placeIdFromSearch?.isNotEmpty == true;
-
-            if (isPlaceIdNotNull) {
-              Future.delayed(Duration(seconds: 1));
-              _pickPrediction(widget.placeIdFromSearch ?? '');
-            }
 
             return MultiProvider(
               providers: [
