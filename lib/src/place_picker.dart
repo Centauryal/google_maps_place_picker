@@ -130,7 +130,7 @@ class PlacePicker extends StatefulWidget {
 
   final String apiKey;
 
-  final LatLng initialPosition;
+  final LatLng? initialPosition;
   final bool? useCurrentLocation;
   final LocationAccuracy desiredLocationAccuracy;
 
@@ -520,8 +520,6 @@ class _PlacePickerState extends State<PlacePicker>
   }
 
   Widget _buildMapWithLocation() {
-    final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
-        widget.placeIdFromSearch?.isNotEmpty == true;
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -530,16 +528,15 @@ class _PlacePickerState extends State<PlacePicker>
             if (snap.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else {
-              if (isPlaceIdNotNull) {
+              if (provider!.currentPosition == null) {
+                if (widget.initialPosition == null) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  return _buildMap(widget.initialPosition ?? LatLng(-180, 180));
+                }
+              } else {
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
-              } else {
-                if (provider!.currentPosition == null) {
-                  return _buildMap(widget.initialPosition);
-                } else {
-                  return _buildMap(LatLng(provider!.currentPosition!.latitude,
-                      provider!.currentPosition!.longitude));
-                }
               }
             }
           });
@@ -550,7 +547,7 @@ class _PlacePickerState extends State<PlacePicker>
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return _buildMap(widget.initialPosition);
+            return _buildMap(widget.initialPosition ?? LatLng(-180, 180));
           }
         },
       );
