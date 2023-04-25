@@ -520,6 +520,8 @@ class _PlacePickerState extends State<PlacePicker>
   }
 
   Widget _buildMapWithLocation() {
+    final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
+        widget.placeIdFromSearch?.isNotEmpty == true;
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -528,11 +530,16 @@ class _PlacePickerState extends State<PlacePicker>
             if (snap.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else {
-              if (provider!.currentPosition == null) {
-                return _buildMap(widget.initialPosition);
-              } else {
+              if (isPlaceIdNotNull) {
                 return _buildMap(LatLng(provider!.currentPosition!.latitude,
                     provider!.currentPosition!.longitude));
+              } else {
+                if (provider!.currentPosition == null) {
+                  return _buildMap(widget.initialPosition);
+                } else {
+                  return _buildMap(LatLng(provider!.currentPosition!.latitude,
+                      provider!.currentPosition!.longitude));
+                }
               }
             }
           });
