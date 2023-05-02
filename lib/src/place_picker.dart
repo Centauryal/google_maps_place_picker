@@ -31,7 +31,7 @@ class PlacePicker extends StatefulWidget {
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
     this.hintText,
-    this.searchingText,
+    // this.searchingText,
     // this.searchBarHeight,
     // this.contentPadding,
     this.onAutoCompleteFailed,
@@ -86,7 +86,7 @@ class PlacePicker extends StatefulWidget {
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
     this.hintText,
-    this.searchingText,
+    // this.searchingText,
     // this.searchBarHeight,
     // this.contentPadding,
     this.onAutoCompleteFailed,
@@ -137,7 +137,6 @@ class PlacePicker extends StatefulWidget {
   final MapCreatedCallback? onMapCreated;
 
   final String? hintText;
-  final String? searchingText;
 
   // final double searchBarHeight;
   // final EdgeInsetsGeometry contentPadding;
@@ -404,7 +403,6 @@ class _PlacePickerState extends State<PlacePicker>
                   searchBarController: searchBarController,
                   sessionToken: provider!.sessionToken,
                   hintText: widget.hintText,
-                  searchingText: widget.searchingText,
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
@@ -441,7 +439,6 @@ class _PlacePickerState extends State<PlacePicker>
         searchBarController: searchBarController,
         sessionToken: provider!.sessionToken,
         hintText: widget.hintText,
-        searchingText: widget.searchingText,
         debounceMilliseconds: widget.autoCompleteDebounceInMilliseconds,
         onPicked: (prediction) {
           widget.onPickedSearch!(prediction.placeId ?? '');

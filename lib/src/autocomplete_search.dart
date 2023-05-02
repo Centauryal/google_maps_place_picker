@@ -17,7 +17,6 @@ class AutoCompleteSearch extends StatefulWidget {
     required this.onPicked,
     required this.appBarKey,
     this.hintText,
-    this.searchingText = "Searching...",
     this.contentPadding,
     this.debounceMilliseconds,
     this.onSearchFailed,
@@ -39,7 +38,6 @@ class AutoCompleteSearch extends StatefulWidget {
 
   final String? sessionToken;
   final String? hintText;
-  final String? searchingText;
   final EdgeInsetsGeometry? contentPadding;
   final int? debounceMilliseconds;
   final ValueChanged<Prediction> onPicked;
@@ -270,8 +268,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
 
     if (searchTerm.length < 1) return;
 
-    _displayOverlay(_buildSearchingOverlay());
-
     _performAutoCompleteSearch(searchTerm);
   }
 
@@ -303,29 +299,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
     );
 
     Overlay.of(context)!.insert(overlayEntry!);
-  }
-
-  Widget _buildSearchingOverlay() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
-      child: Row(
-        children: <Widget>[
-          SizedBox(
-            height: 24,
-            width: 24,
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          SizedBox(width: 24),
-          Expanded(
-            child: Text(
-              widget.searchingText ?? "Searching...",
-              style: TextStyle(fontSize: 16),
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
