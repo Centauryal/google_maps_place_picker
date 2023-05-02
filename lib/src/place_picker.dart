@@ -9,7 +9,6 @@ import 'package:google_maps_place_picker/providers/place_provider.dart';
 import 'package:google_maps_place_picker/src/autocomplete_search.dart';
 import 'package:google_maps_place_picker/src/controllers/autocomplete_search_controller.dart';
 import 'package:google_maps_place_picker/src/google_map_place_picker.dart';
-import 'package:google_maps_place_picker/src/mixin/automatic_transition_mixin.dart';
 import 'package:google_maps_place_picker/src/utils/show_snackbar.dart';
 import 'package:google_maps_place_picker/src/utils/uuid.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -256,8 +255,7 @@ class PlacePicker extends StatefulWidget {
   _PlacePickerState createState() => _PlacePickerState();
 }
 
-class _PlacePickerState extends State<PlacePicker>
-    with AutomaticTransitionMixin {
+class _PlacePickerState extends State<PlacePicker> {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
@@ -517,6 +515,8 @@ class _PlacePickerState extends State<PlacePicker>
   }
 
   Widget _buildMapWithLocation() {
+    getPlaceIdFromSearch();
+
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
           future: provider!
@@ -597,8 +597,6 @@ class _PlacePickerState extends State<PlacePicker>
   }
 
   Future<void> getPlaceIdFromSearch() async {
-    if (!mounted) return;
-
     final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
         widget.placeIdFromSearch?.isNotEmpty == true;
 
@@ -609,10 +607,5 @@ class _PlacePickerState extends State<PlacePicker>
     if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
     }
-  }
-
-  @override
-  Future<void> onTransitionFinished() async {
-    await getPlaceIdFromSearch();
   }
 }
