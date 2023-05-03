@@ -183,7 +183,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
               children: [
                 _buildSearchTextField(data),
                 SizedBox(height: 8),
-                if (data.length < 1) _buildMyCurrentLocationText(),
+                if (data.length < 3) _buildMyCurrentLocationText(),
               ],
             ),
           );
@@ -266,7 +266,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
 
     _clearOverlay();
 
-    if (searchTerm.length < 1) return;
+    if (searchTerm.length < 3) return;
 
     _performAutoCompleteSearch(searchTerm);
   }
