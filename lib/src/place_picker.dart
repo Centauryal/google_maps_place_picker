@@ -326,7 +326,6 @@ class _PlacePickerState extends State<PlacePicker> {
                         automaticallyImplyLeading: false,
                         iconTheme: Theme.of(context).iconTheme,
                         elevation: 0,
-                        backgroundColor: Colors.transparent,
                         titleSpacing: 0.0,
                         title: _buildAppBar(context),
                       ),
