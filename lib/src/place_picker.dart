@@ -30,6 +30,8 @@ class PlacePicker extends StatefulWidget {
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
     this.hintText,
+    this.backgroundColor,
+    this.foregroundColor,
     // this.searchingText,
     // this.searchBarHeight,
     // this.contentPadding,
@@ -125,6 +127,8 @@ class PlacePicker extends StatefulWidget {
   })  : useAutoCompleteSearch = true,
         placeIdFromSearch = null,
         useMyLocationFromSearch = null,
+        backgroundColor = null,
+        foregroundColor = null,
         super(key: key);
 
   final String apiKey;
@@ -136,6 +140,10 @@ class PlacePicker extends StatefulWidget {
   final MapCreatedCallback? onMapCreated;
 
   final String? hintText;
+
+  /// Color for Appbar
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   // final double searchBarHeight;
   // final EdgeInsetsGeometry contentPadding;
@@ -326,6 +334,8 @@ class _PlacePickerState extends State<PlacePicker> {
                         automaticallyImplyLeading: false,
                         iconTheme: Theme.of(context).iconTheme,
                         elevation: 0,
+                        backgroundColor: widget.backgroundColor,
+                        foregroundColor: widget.foregroundColor,
                         titleSpacing: 0.0,
                         title: _buildAppBar(context),
                       ),
