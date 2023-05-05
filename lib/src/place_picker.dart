@@ -330,7 +330,7 @@ class _PlacePickerState extends State<PlacePicker> {
                         backgroundColor: Colors.transparent,
                         titleSpacing: 0.0,
                         title: _buildAppBar(context),
-                        systemOverlayStyle: SystemUiOverlayStyle.light,
+                        systemOverlayStyle: SystemUiOverlayStyle.dark,
                       ),
                       body: _buildMapWithLocation(),
                     ),
