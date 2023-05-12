@@ -288,10 +288,10 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
+        height: MediaQuery.of(context).size.height,
         top: offset.dy + size.height + 16,
         left: offset.dx,
         right: offset.dx,
-        bottom: offset.dy,
         child: Material(
           elevation: 4.0,
           child: SingleChildScrollView(child: overlayChild),
