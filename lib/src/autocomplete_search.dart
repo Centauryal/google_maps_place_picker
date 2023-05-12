@@ -293,7 +293,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         right: offset.dx,
         child: Material(
           elevation: 4.0,
-          child: overlayChild,
+          child: SingleChildScrollView(child: overlayChild),
         ),
       ),
     );

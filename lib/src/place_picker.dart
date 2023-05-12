@@ -10,7 +10,6 @@ import 'package:google_maps_place_picker/providers/place_provider.dart';
 import 'package:google_maps_place_picker/src/autocomplete_search.dart';
 import 'package:google_maps_place_picker/src/controllers/autocomplete_search_controller.dart';
 import 'package:google_maps_place_picker/src/google_map_place_picker.dart';
-import 'package:google_maps_place_picker/src/utils/show_snackbar.dart';
 import 'package:google_maps_place_picker/src/utils/uuid.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart';
@@ -64,7 +63,6 @@ class PlacePicker extends StatefulWidget {
     this.automaticallyImplyAppBarLeading = true,
     this.autocompleteOnTrailingWhitespace = false,
     this.hidePlaceDetailsWhenDraggingPin = true,
-    this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
     this.placeIdFromSearch,
     this.useMyLocationFromSearch,
@@ -119,7 +117,6 @@ class PlacePicker extends StatefulWidget {
     this.automaticallyImplyAppBarLeading = true,
     this.autocompleteOnTrailingWhitespace = false,
     this.hidePlaceDetailsWhenDraggingPin = true,
-    this.errorMessageGpsIsDisable = '',
     this.defaultResultPinPointNotFound,
     this.prefixIconData,
     this.suffixIconData,
@@ -231,8 +228,6 @@ class PlacePicker extends StatefulWidget {
   final bool autocompleteOnTrailingWhitespace;
 
   final bool hidePlaceDetailsWhenDraggingPin;
-
-  final String errorMessageGpsIsDisable;
 
   /// The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
@@ -593,8 +588,6 @@ class _PlacePickerState extends State<PlacePicker> {
             .updateCurrentLocation(widget.forceAndroidLocationManager);
         await _moveToCurrentPosition();
       }
-    } else {
-      showSnackBar(context, widget.errorMessageGpsIsDisable);
     }
   }
 
