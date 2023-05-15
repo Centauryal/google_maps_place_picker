@@ -306,7 +306,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
     return Container(
       color: Colors.white,
       child: ListView.builder(
-        physics: const FixedExtentScrollPhysics(),
         padding: EdgeInsets.zero,
         itemCount: predictions.length,
         itemBuilder: (_, index) {
