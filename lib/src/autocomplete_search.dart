@@ -294,7 +294,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         right: offset.dx,
         child: Material(
           elevation: 4.0,
-          child: SingleChildScrollView(child: overlayChild),
+          child: overlayChild,
         ),
       ),
     );
@@ -303,18 +303,18 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
-    return ListBody(
-      children: predictions
-          .map(
-            (p) => PredictionTile(
-              prediction: p,
-              onTap: (selectedPrediction) {
-                resetSearchBar();
-                widget.onPicked(selectedPrediction);
-              },
-            ),
-          )
-          .toList(),
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: predictions.length,
+      itemBuilder: (_, index) {
+        return PredictionTile(
+          prediction: predictions[index],
+          onTap: (selectedPrediction) {
+            resetSearchBar();
+            widget.onPicked(selectedPrediction);
+          },
+        );
+      },
     );
   }
 
