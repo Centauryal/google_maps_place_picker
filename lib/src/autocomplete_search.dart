@@ -303,18 +303,23 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: predictions.length,
-      itemBuilder: (_, index) {
-        return PredictionTile(
-          prediction: predictions[index],
-          onTap: (selectedPrediction) {
-            resetSearchBar();
-            widget.onPicked(selectedPrediction);
-          },
-        );
-      },
+    return Container(
+      color: Colors.white,
+      child: ListView.builder(
+        physics: const FixedExtentScrollPhysics(),
+        padding: EdgeInsets.zero,
+        itemCount: predictions.length,
+        shrinkWrap: true,
+        itemBuilder: (_, index) {
+          return PredictionTile(
+            prediction: predictions[index],
+            onTap: (selectedPrediction) {
+              resetSearchBar();
+              widget.onPicked(selectedPrediction);
+            },
+          );
+        },
+      ),
     );
   }
 
