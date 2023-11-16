@@ -66,6 +66,9 @@ class PlacePicker extends StatefulWidget {
     this.defaultResultPinPointNotFound,
     this.placeIdFromSearch,
     this.useMyLocationFromSearch,
+    this.iconCurrentLocation,
+    this.textStyleCurrentLocation,
+    this.onTapCurrentLocation,
   })  : useAutoCompleteSearch = false,
         prefixIconData = null,
         suffixIconData = null,
@@ -120,6 +123,9 @@ class PlacePicker extends StatefulWidget {
     this.defaultResultPinPointNotFound,
     this.prefixIconData,
     this.suffixIconData,
+    this.iconCurrentLocation,
+    this.textStyleCurrentLocation,
+    this.onTapCurrentLocation,
   })  : useAutoCompleteSearch = true,
         placeIdFromSearch = null,
         useMyLocationFromSearch = null,
@@ -246,6 +252,10 @@ class PlacePicker extends StatefulWidget {
   /// Use My current location from search to using a map
   final VoidCallback? onTapMyLocationFromSearch;
   final bool? useMyLocationFromSearch;
+
+  final Widget? iconCurrentLocation;
+  final TextStyle? textStyleCurrentLocation;
+  final VoidCallback? onTapCurrentLocation;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -516,20 +526,16 @@ class _PlacePickerState extends State<PlacePicker> {
 
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
-          future: provider!
-              .updateCurrentLocation(widget.forceAndroidLocationManager),
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else {
-              if (provider!.currentPosition == null) {
-                return _buildMap(widget.initialPosition);
-              } else {
-                return _buildMap(LatLng(provider!.currentPosition!.latitude,
-                    provider!.currentPosition!.longitude));
-              }
-            }
-          });
+        future:
+            provider!.updateCurrentLocation(widget.forceAndroidLocationManager),
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return _buildMap(widget.initialPosition);
+          }
+        },
+      );
     } else {
       return FutureBuilder(
         future: Future.delayed(Duration(milliseconds: 1)),
@@ -572,6 +578,8 @@ class _PlacePickerState extends State<PlacePicker> {
         }
       },
       onPlacePicked: widget.onPlacePicked,
+      iconCurrentLocation: widget.iconCurrentLocation,
+      textStyleCurrentLocation: widget.textStyleCurrentLocation,
     );
   }
 
@@ -589,6 +597,8 @@ class _PlacePickerState extends State<PlacePicker> {
         await _moveToCurrentPosition();
       }
     }
+
+    widget.onTapCurrentLocation?.call();
   }
 
   Future<void> getPlaceIdFromSearch() async {
