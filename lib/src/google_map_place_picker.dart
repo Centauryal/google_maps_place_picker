@@ -50,7 +50,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
     this.defaultResultPinPointNotFound,
     this.iconCurrentLocation,
     this.textStyleCurrentLocation,
-    this.onTapCurrentLocation,
   }) : super(key: key);
 
   final LatLng initialTarget;
@@ -84,7 +83,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
   final Widget? defaultResultPinPointNotFound;
   final Widget? iconCurrentLocation;
   final TextStyle? textStyleCurrentLocation;
-  final VoidCallback? onTapCurrentLocation;
 
   _searchByCameraLocation(PlaceProvider provider) async {
     // We don't want to search location again if camera location is changed by zooming in/out.
@@ -402,7 +400,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () {
                       onMyLocation?.call();
-                      onTapCurrentLocation?.call();
                     },
                     child: Row(
                       children: [

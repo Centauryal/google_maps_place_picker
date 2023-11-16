@@ -580,7 +580,6 @@ class _PlacePickerState extends State<PlacePicker> {
       onPlacePicked: widget.onPlacePicked,
       iconCurrentLocation: widget.iconCurrentLocation,
       textStyleCurrentLocation: widget.textStyleCurrentLocation,
-      onTapCurrentLocation: widget.onTapCurrentLocation,
     );
   }
 
@@ -598,6 +597,8 @@ class _PlacePickerState extends State<PlacePicker> {
         await _moveToCurrentPosition();
       }
     }
+
+    widget.onTapCurrentLocation?.call();
   }
 
   Future<void> getPlaceIdFromSearch() async {
