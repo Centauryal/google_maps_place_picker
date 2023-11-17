@@ -26,6 +26,7 @@ class PlacePicker extends StatefulWidget {
     required this.apiKey,
     this.onPlacePicked,
     required this.initialPosition,
+    required this.defaultPosition,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
@@ -81,6 +82,7 @@ class PlacePicker extends StatefulWidget {
     required this.apiKey,
     this.onPlacePicked,
     required this.initialPosition,
+    required this.defaultPosition,
     required this.onPickedSearch,
     required this.onTapMyLocationFromSearch,
     this.useCurrentLocation,
@@ -133,7 +135,8 @@ class PlacePicker extends StatefulWidget {
 
   final String apiKey;
 
-  final LatLng initialPosition;
+  final LatLng? initialPosition;
+  final LatLng defaultPosition;
   final bool? useCurrentLocation;
   final LocationAccuracy desiredLocationAccuracy;
 
@@ -536,10 +539,10 @@ class _PlacePickerState extends State<PlacePicker> {
           } else {
             print('DISINI 1 ${provider!.currentPosition}');
             print('DISINI 2 ${widget.initialPosition}');
-            if (provider!.currentPosition == null) {
+            if (widget.initialPosition != null) {
               print('DISINI MASUK 1');
-              return _buildMap(widget.initialPosition);
-            } else {
+              return _buildMap(widget.initialPosition!);
+            } else if (provider!.currentPosition != null) {
               print('DISINI MASUK 2');
               return _buildMap(
                 LatLng(
@@ -547,6 +550,9 @@ class _PlacePickerState extends State<PlacePicker> {
                   provider!.currentPosition!.longitude,
                 ),
               );
+            } else {
+              print('DISINI MASUK 3');
+              return _buildMap(widget.defaultPosition);
             }
           }
         },
@@ -558,7 +564,11 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return _buildMap(widget.initialPosition);
+            if (widget.initialPosition != null) {
+              return _buildMap(widget.initialPosition!);
+            }
+
+            return _buildMap(widget.defaultPosition);
           }
         },
       );
