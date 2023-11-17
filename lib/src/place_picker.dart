@@ -303,8 +303,6 @@ class _PlacePickerState extends State<PlacePicker> {
 
   @override
   Widget build(BuildContext context) {
-    provider?.updateCurrentLocation(widget.forceAndroidLocationManager);
-
     final useOnlySearch = widget.useAutoCompleteSearch;
     return WillPopScope(
       onWillPop: () {
@@ -316,6 +314,8 @@ class _PlacePickerState extends State<PlacePicker> {
       child: FutureBuilder<PlaceProvider>(
         future: _futureProvider,
         builder: (context, snapshot) {
+          provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
+
           if (snapshot.hasData) {
             provider = snapshot.data;
 
@@ -537,8 +537,10 @@ class _PlacePickerState extends State<PlacePicker> {
             print('DISINI 1 ${provider!.currentPosition}');
             print('DISINI 2 ${widget.initialPosition}');
             if (provider!.currentPosition == null) {
+              print('DISINI MASUK 1');
               return _buildMap(widget.initialPosition);
             } else {
+              print('DISINI MASUK 2');
               return _buildMap(
                 LatLng(
                   provider!.currentPosition!.latitude,
