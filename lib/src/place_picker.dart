@@ -75,6 +75,7 @@ class PlacePicker extends StatefulWidget {
         suffixIconData = null,
         onPickedSearch = null,
         onTapMyLocationFromSearch = null,
+        emptyWidgetSearch = null,
         super(key: key);
 
   PlacePicker.autoCompleteSearch({
@@ -128,6 +129,7 @@ class PlacePicker extends StatefulWidget {
     this.iconCurrentLocation,
     this.textStyleCurrentLocation,
     this.onTapCurrentLocation,
+    this.emptyWidgetSearch,
   })  : useAutoCompleteSearch = true,
         placeIdFromSearch = null,
         useMyLocationFromSearch = null,
@@ -259,6 +261,7 @@ class PlacePicker extends StatefulWidget {
   final Widget? iconCurrentLocation;
   final TextStyle? textStyleCurrentLocation;
   final VoidCallback? onTapCurrentLocation;
+  final Widget? emptyWidgetSearch;
 
   @override
   _PlacePickerState createState() => _PlacePickerState();
@@ -472,6 +475,7 @@ class _PlacePickerState extends State<PlacePicker> {
         prefixIconData: widget.prefixIconData,
         suffixIconData: widget.suffixIconData,
         onTapMyLocation: widget.onTapMyLocationFromSearch,
+        emptyWidgetSearch: widget.emptyWidgetSearch,
       ),
     );
   }

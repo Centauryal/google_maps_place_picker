@@ -12,26 +12,30 @@ class PredictionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
         border: Border(
           bottom: BorderSide(width: 1, color: Color(0xFFEEEEEE)),
         ),
       ),
       child: ListTile(
+        contentPadding: EdgeInsets.zero,
         title: prediction.structuredFormatting?.mainText != null
-            ? Text(
-                prediction.structuredFormatting?.mainText ?? '',
-                style: body2BoldTextStyle(context, Colors.black),
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  prediction.structuredFormatting?.mainText ?? '',
+                  style: body2BoldTextStyle(context, Colors.black),
+                ),
               )
             : null,
-        subtitle: RichText(
-          text: TextSpan(
-            children: _buildPredictionText(context),
+        subtitle: Text(
+          prediction.description ?? '',
+          style: body2RegularTextStyle(
+            context,
+            Color(0x99000000),
           ),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         onTap: () {
           if (onTap != null) {
             onTap!(prediction);

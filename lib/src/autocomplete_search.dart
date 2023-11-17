@@ -34,6 +34,7 @@ class AutoCompleteSearch extends StatefulWidget {
     this.onTapMyLocation,
     this.prefixIconData,
     this.suffixIconData,
+    this.emptyWidgetSearch,
   }) : super(key: key);
 
   final String? sessionToken;
@@ -57,6 +58,7 @@ class AutoCompleteSearch extends StatefulWidget {
   final VoidCallback? onTapMyLocation;
   final IconData? prefixIconData;
   final IconData? suffixIconData;
+  final Widget? emptyWidgetSearch;
 
   @override
   AutoCompleteSearchState createState() => AutoCompleteSearchState();
@@ -293,7 +295,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         left: offset.dx,
         right: offset.dx,
         child: Material(
-          elevation: 4.0,
           child: overlayChild,
         ),
       ),
@@ -303,22 +304,25 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
-    return Container(
-      color: Colors.white,
-      child: ListView.builder(
+    if (predictions.isNotEmpty) {
+      return ListView.builder(
         padding: EdgeInsets.zero,
         itemCount: predictions.length,
         itemBuilder: (_, index) {
-          return PredictionTile(
-            prediction: predictions[index],
-            onTap: (selectedPrediction) {
-              resetSearchBar();
-              widget.onPicked(selectedPrediction);
-            },
-          );
+          if (predictions.isNotEmpty) {
+            return PredictionTile(
+              prediction: predictions[index],
+              onTap: (selectedPrediction) {
+                resetSearchBar();
+                widget.onPicked(selectedPrediction);
+              },
+            );
+          }
         },
-      ),
-    );
+      );
+    }
+
+    return widget.emptyWidgetSearch ?? const SizedBox();
   }
 
   _performAutoCompleteSearch(String searchTerm) async {
@@ -338,7 +342,8 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         radius: widget.autocompleteRadius,
         language: widget.autocompleteLanguage,
         types: widget.autocompleteTypes ?? const [],
-        components: widget.autocompleteComponents ?? const [],
+        components:
+            widget.autocompleteComponents ?? [Component("country", "id")],
         strictbounds: widget.strictbounds ?? false,
         region: widget.region,
       );
