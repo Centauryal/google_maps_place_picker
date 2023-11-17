@@ -304,23 +304,25 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   Widget _buildPredictionOverlay(List<Prediction> predictions) {
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: predictions.length,
-      itemBuilder: (_, index) {
-        if (predictions.isNotEmpty) {
-          return PredictionTile(
-            prediction: predictions[index],
-            onTap: (selectedPrediction) {
-              resetSearchBar();
-              widget.onPicked(selectedPrediction);
-            },
-          );
-        }
+    if (predictions.isNotEmpty) {
+      return ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: predictions.length,
+        itemBuilder: (_, index) {
+          if (predictions.isNotEmpty) {
+            return PredictionTile(
+              prediction: predictions[index],
+              onTap: (selectedPrediction) {
+                resetSearchBar();
+                widget.onPicked(selectedPrediction);
+              },
+            );
+          }
+        },
+      );
+    }
 
-        return widget.emptyWidgetSearch ?? const SizedBox();
-      },
-    );
+    return widget.emptyWidgetSearch ?? const SizedBox();
   }
 
   _performAutoCompleteSearch(String searchTerm) async {

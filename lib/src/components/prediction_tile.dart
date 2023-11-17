@@ -18,10 +18,7 @@ class PredictionTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        visualDensity: VisualDensity(
-          horizontal: VisualDensity.minimumDensity,
-          vertical: VisualDensity.minimumDensity,
-        ),
+        contentPadding: EdgeInsets.zero,
         title: prediction.structuredFormatting?.mainText != null
             ? Padding(
                 padding: const EdgeInsets.only(bottom: 4),
