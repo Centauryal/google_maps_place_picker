@@ -303,7 +303,10 @@ class _PlacePickerState extends State<PlacePicker> {
 
   @override
   Widget build(BuildContext context) {
-    provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
+    provider?.updateCurrentLocation(widget.forceAndroidLocationManager);
+
+    print(
+        'DISINI ${provider?.currentPosition?.latitude} == ${provider?.currentPosition?.longitude}');
 
     final useOnlySearch = widget.useAutoCompleteSearch;
     return WillPopScope(
