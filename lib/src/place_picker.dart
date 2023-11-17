@@ -25,7 +25,7 @@ class PlacePicker extends StatefulWidget {
     Key? key,
     required this.apiKey,
     this.onPlacePicked,
-    required this.initialPosition,
+    this.initialPosition,
     required this.defaultPosition,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
@@ -81,7 +81,7 @@ class PlacePicker extends StatefulWidget {
     Key? key,
     required this.apiKey,
     this.onPlacePicked,
-    required this.initialPosition,
+    this.initialPosition,
     required this.defaultPosition,
     required this.onPickedSearch,
     required this.onTapMyLocationFromSearch,
@@ -537,13 +537,9 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            print('DISINI 1 ${provider!.currentPosition}');
-            print('DISINI 2 ${widget.initialPosition}');
             if (widget.initialPosition != null) {
-              print('DISINI MASUK 1');
               return _buildMap(widget.initialPosition!);
             } else if (provider!.currentPosition != null) {
-              print('DISINI MASUK 2');
               return _buildMap(
                 LatLng(
                   provider!.currentPosition!.latitude,
@@ -551,7 +547,6 @@ class _PlacePickerState extends State<PlacePicker> {
                 ),
               );
             } else {
-              print('DISINI MASUK 3');
               return _buildMap(widget.defaultPosition);
             }
           }
