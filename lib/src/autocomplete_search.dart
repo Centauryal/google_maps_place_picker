@@ -35,6 +35,7 @@ class AutoCompleteSearch extends StatefulWidget {
     this.prefixIconData,
     this.suffixIconData,
     this.emptyWidgetSearch,
+    this.iconCurrentLocationSearch,
   }) : super(key: key);
 
   final String? sessionToken;
@@ -59,6 +60,7 @@ class AutoCompleteSearch extends StatefulWidget {
   final IconData? prefixIconData;
   final IconData? suffixIconData;
   final Widget? emptyWidgetSearch;
+  final IconData? iconCurrentLocationSearch;
 
   @override
   AutoCompleteSearchState createState() => AutoCompleteSearchState();
@@ -203,12 +205,16 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: EdgeInsets.only(right: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Icon(Icons.gps_fixed_outlined, size: 24),
+                child: Icon(
+                  widget.iconCurrentLocationSearch ?? Icons.gps_fixed_outlined,
+                  size: 24,
+                ),
               ),
             ),
             Expanded(
