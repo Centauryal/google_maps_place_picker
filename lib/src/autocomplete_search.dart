@@ -342,7 +342,8 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         radius: widget.autocompleteRadius,
         language: widget.autocompleteLanguage,
         types: widget.autocompleteTypes ?? const [],
-        components: widget.autocompleteComponents ?? const [],
+        components:
+            widget.autocompleteComponents ?? [Component("country", "id")],
         strictbounds: widget.strictbounds ?? false,
         region: widget.region,
       );
