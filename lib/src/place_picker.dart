@@ -314,10 +314,10 @@ class _PlacePickerState extends State<PlacePicker> {
       child: FutureBuilder<PlaceProvider>(
         future: _futureProvider,
         builder: (context, snapshot) {
-          provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
-
           if (snapshot.hasData) {
             provider = snapshot.data;
+
+            provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
 
             return MultiProvider(
               providers: [
