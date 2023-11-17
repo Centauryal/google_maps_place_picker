@@ -532,6 +532,7 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
+            print('DISINI 1 ${snap.data}');
             return _buildMap(widget.initialPosition);
           }
         },
@@ -543,6 +544,7 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
+            print('DISINI 2 ${snap.data}');
             return _buildMap(widget.initialPosition);
           }
         },
