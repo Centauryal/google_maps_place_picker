@@ -258,7 +258,7 @@ class PlacePicker extends StatefulWidget {
   final VoidCallback? onTapMyLocationFromSearch;
   final bool? useMyLocationFromSearch;
 
-  final Widget? iconCurrentLocation;
+  final IconData? iconCurrentLocation;
   final TextStyle? textStyleCurrentLocation;
   final VoidCallback? onTapCurrentLocation;
   final Widget? emptyWidgetSearch;
@@ -476,6 +476,7 @@ class _PlacePickerState extends State<PlacePicker> {
         suffixIconData: widget.suffixIconData,
         onTapMyLocation: widget.onTapMyLocationFromSearch,
         emptyWidgetSearch: widget.emptyWidgetSearch,
+        iconCurrentLocationSearch: widget.iconCurrentLocation,
       ),
     );
   }

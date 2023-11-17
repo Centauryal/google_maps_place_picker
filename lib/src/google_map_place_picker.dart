@@ -81,7 +81,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
 
   // The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
-  final Widget? iconCurrentLocation;
+  final IconData? iconCurrentLocation;
   final TextStyle? textStyleCurrentLocation;
 
   _searchByCameraLocation(PlaceProvider provider) async {
@@ -346,13 +346,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
   }
 
   Widget _buildMapIcons(BuildContext context) {
-    final _iconCurrentLocation = iconCurrentLocation ??
-        Icon(
-          Icons.my_location,
-          size: 16,
-          color: Color(0xFF12784A),
-        );
-
     final _textStyleCurrentLocation = textStyleCurrentLocation ??
         GoogleFonts.poppins(
           textStyle: Theme.of(context)
@@ -402,8 +395,13 @@ class GoogleMapPlacePicker extends StatelessWidget {
                       onMyLocation?.call();
                     },
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _iconCurrentLocation,
+                        Icon(
+                          iconCurrentLocation ?? Icons.my_location,
+                          size: 16,
+                          color: Color(0xFF12784A),
+                        ),
                         SizedBox(width: 10),
                         Text(
                           'Use Current Location',
