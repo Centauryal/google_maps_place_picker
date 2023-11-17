@@ -25,7 +25,8 @@ class PlacePicker extends StatefulWidget {
     Key? key,
     required this.apiKey,
     this.onPlacePicked,
-    required this.initialPosition,
+    this.initialPosition,
+    required this.defaultPosition,
     this.useCurrentLocation,
     this.desiredLocationAccuracy = LocationAccuracy.high,
     this.onMapCreated,
@@ -80,7 +81,8 @@ class PlacePicker extends StatefulWidget {
     Key? key,
     required this.apiKey,
     this.onPlacePicked,
-    required this.initialPosition,
+    this.initialPosition,
+    required this.defaultPosition,
     required this.onPickedSearch,
     required this.onTapMyLocationFromSearch,
     this.useCurrentLocation,
@@ -133,7 +135,8 @@ class PlacePicker extends StatefulWidget {
 
   final String apiKey;
 
-  final LatLng initialPosition;
+  final LatLng? initialPosition;
+  final LatLng defaultPosition;
   final bool? useCurrentLocation;
   final LocationAccuracy desiredLocationAccuracy;
 
@@ -316,6 +319,8 @@ class _PlacePickerState extends State<PlacePicker> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             provider = snapshot.data;
+
+            provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
 
             return MultiProvider(
               providers: [
@@ -532,7 +537,18 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return _buildMap(widget.initialPosition);
+            if (widget.initialPosition != null) {
+              return _buildMap(widget.initialPosition!);
+            } else if (provider!.currentPosition != null) {
+              return _buildMap(
+                LatLng(
+                  provider!.currentPosition!.latitude,
+                  provider!.currentPosition!.longitude,
+                ),
+              );
+            } else {
+              return _buildMap(widget.defaultPosition);
+            }
           }
         },
       );
@@ -543,7 +559,11 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return _buildMap(widget.initialPosition);
+            if (widget.initialPosition != null) {
+              return _buildMap(widget.initialPosition!);
+            }
+
+            return _buildMap(widget.defaultPosition);
           }
         },
       );
