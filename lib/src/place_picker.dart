@@ -305,9 +305,6 @@ class _PlacePickerState extends State<PlacePicker> {
   Widget build(BuildContext context) {
     provider?.updateCurrentLocation(widget.forceAndroidLocationManager);
 
-    print(
-        'DISINI ${provider?.currentPosition?.latitude} == ${provider?.currentPosition?.longitude}');
-
     final useOnlySearch = widget.useAutoCompleteSearch;
     return WillPopScope(
       onWillPop: () {
@@ -537,6 +534,8 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
+            print('DISINI 1 ${provider!.currentPosition}');
+            print('DISINI 2 ${widget.initialPosition}');
             if (provider!.currentPosition == null) {
               return _buildMap(widget.initialPosition);
             } else {
