@@ -11,7 +11,7 @@ class PredictionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(width: 1, color: Color(0xFFEEEEEE)),
