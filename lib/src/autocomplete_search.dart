@@ -34,6 +34,7 @@ class AutoCompleteSearch extends StatefulWidget {
     this.onTapMyLocation,
     this.prefixIconData,
     this.suffixIconData,
+    this.emptyWidgetSearch,
   }) : super(key: key);
 
   final String? sessionToken;
@@ -57,6 +58,7 @@ class AutoCompleteSearch extends StatefulWidget {
   final VoidCallback? onTapMyLocation;
   final IconData? prefixIconData;
   final IconData? suffixIconData;
+  final Widget? emptyWidgetSearch;
 
   @override
   AutoCompleteSearchState createState() => AutoCompleteSearchState();
@@ -293,7 +295,6 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
         left: offset.dx,
         right: offset.dx,
         child: Material(
-          elevation: 4.0,
           child: overlayChild,
         ),
       ),
@@ -307,13 +308,17 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
       padding: EdgeInsets.zero,
       itemCount: predictions.length,
       itemBuilder: (_, index) {
-        return PredictionTile(
-          prediction: predictions[index],
-          onTap: (selectedPrediction) {
-            resetSearchBar();
-            widget.onPicked(selectedPrediction);
-          },
-        );
+        if (predictions.isNotEmpty) {
+          return PredictionTile(
+            prediction: predictions[index],
+            onTap: (selectedPrediction) {
+              resetSearchBar();
+              widget.onPicked(selectedPrediction);
+            },
+          );
+        }
+
+        return widget.emptyWidgetSearch ?? const SizedBox();
       },
     );
   }
