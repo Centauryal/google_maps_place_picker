@@ -389,7 +389,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
           SizedBox(height: 10),
           enableMyLocationButton!
               ? Container(
-                  height: 48,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: ShapeDecoration(
                     color: Colors.white,
@@ -402,9 +401,10 @@ class GoogleMapPlacePicker extends StatelessWidget {
                       onMyLocation?.call();
                     },
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _iconCurrentLocation,
-                        SizedBox(width: 10),
+                        SizedBox(width: 8),
                         Text(
                           'Use Current Location',
                           style: _textStyleCurrentLocation,
