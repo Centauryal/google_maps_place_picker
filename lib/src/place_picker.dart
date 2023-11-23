@@ -635,10 +635,10 @@ class _PlacePickerState extends State<PlacePicker> {
 
     if (isPlaceIdNotNull) {
       _pickPrediction(widget.placeIdFromSearch ?? '');
-    }
-
-    if (widget.useMyLocationFromSearch == true) {
+      return;
+    } else if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
+      return;
     }
   }
 }
