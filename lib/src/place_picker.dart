@@ -535,7 +535,7 @@ class PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    // getPlaceIdFromSearch();
+    getPlaceIdFromSearch();
 
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
