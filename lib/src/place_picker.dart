@@ -580,6 +580,7 @@ class PlacePickerState extends State<PlacePicker> {
 
   Widget _buildMap(LatLng initialTarget) {
     return GoogleMapPlacePicker(
+      key: UniqueKey(),
       initialTarget: initialTarget,
       appBarKey: appBarKey,
       selectedPlaceWidgetBuilder: widget.selectedPlaceWidgetBuilder,
@@ -635,10 +636,10 @@ class PlacePickerState extends State<PlacePicker> {
 
     if (isPlaceIdNotNull) {
       pickPrediction(widget.placeIdFromSearch ?? '');
-    }
-
-    if (widget.useMyLocationFromSearch == true) {
+      return;
+    } else if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
+      return;
     }
   }
 }
