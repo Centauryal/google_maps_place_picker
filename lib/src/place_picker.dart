@@ -267,10 +267,10 @@ class PlacePicker extends StatefulWidget {
   final Widget? emptyWidgetSearch;
 
   @override
-  PlacePickerState createState() => PlacePickerState();
+  _PlacePickerState createState() => _PlacePickerState();
 }
 
-class PlacePickerState extends State<PlacePicker> {
+class _PlacePickerState extends State<PlacePicker> {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
@@ -422,7 +422,7 @@ class PlacePickerState extends State<PlacePicker> {
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
-                    pickPrediction(prediction.placeId ?? '');
+                    _pickPrediction(prediction.placeId ?? '');
                   },
                   onSearchFailed: (status) {
                     if (widget.onAutoCompleteFailed != null) {
@@ -484,7 +484,7 @@ class PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  pickPrediction(String placeId) async {
+  _pickPrediction(String placeId) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
     final PlacesDetailsResponse response =
@@ -635,7 +635,7 @@ class PlacePickerState extends State<PlacePicker> {
         widget.placeIdFromSearch?.isNotEmpty == true;
 
     if (isPlaceIdNotNull) {
-      pickPrediction(widget.placeIdFromSearch ?? '');
+      _pickPrediction(widget.placeIdFromSearch ?? '');
       return;
     } else if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
