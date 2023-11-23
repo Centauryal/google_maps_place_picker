@@ -48,6 +48,8 @@ class GoogleMapPlacePicker extends StatelessWidget {
     this.forceSearchOnZoomChanged,
     this.hidePlaceDetailsWhenDraggingPin,
     this.defaultResultPinPointNotFound,
+    this.iconCurrentLocation,
+    this.textStyleCurrentLocation,
   }) : super(key: key);
 
   final LatLng initialTarget;
@@ -79,6 +81,8 @@ class GoogleMapPlacePicker extends StatelessWidget {
 
   // The widget bottom is used for pin point results
   final Widget? defaultResultPinPointNotFound;
+  final Widget? iconCurrentLocation;
+  final TextStyle? textStyleCurrentLocation;
 
   _searchByCameraLocation(PlaceProvider provider) async {
     // We don't want to search location again if camera location is changed by zooming in/out.
@@ -342,6 +346,26 @@ class GoogleMapPlacePicker extends StatelessWidget {
   }
 
   Widget _buildMapIcons(BuildContext context) {
+    final _iconCurrentLocation = iconCurrentLocation ??
+        Icon(
+          Icons.my_location,
+          size: 16,
+          color: Color(0xFF12784A),
+        );
+
+    final _textStyleCurrentLocation = textStyleCurrentLocation ??
+        GoogleFonts.poppins(
+          textStyle: Theme.of(context)
+              .textTheme
+              .bodyText1!
+              .copyWith(leadingDistribution: TextLeadingDistribution.even),
+          fontSize: 16,
+          color: Color(0xFF12784A),
+          fontWeight: FontWeight.w500,
+          height: 24 / 16,
+          letterSpacing: 0,
+        );
+
     return Positioned(
       bottom: 20,
       right: 16,
@@ -365,7 +389,6 @@ class GoogleMapPlacePicker extends StatelessWidget {
           SizedBox(height: 10),
           enableMyLocationButton!
               ? Container(
-                  height: 48,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: ShapeDecoration(
                     color: Colors.white,
@@ -374,29 +397,17 @@ class GoogleMapPlacePicker extends StatelessWidget {
                     ),
                   ),
                   child: GestureDetector(
-                    onTap: onMyLocation,
+                    onTap: () {
+                      onMyLocation?.call();
+                    },
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.my_location,
-                          size: 16,
-                          color: Color(0xFF12784A),
-                        ),
-                        SizedBox(width: 10),
+                        _iconCurrentLocation,
+                        SizedBox(width: 8),
                         Text(
                           'Use Current Location',
-                          style: GoogleFonts.poppins(
-                              textStyle: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1!
-                                  .copyWith(
-                                      leadingDistribution:
-                                          TextLeadingDistribution.even),
-                              fontSize: 16,
-                              color: Color(0xFF12784A),
-                              fontWeight: FontWeight.w500,
-                              height: 24 / 16,
-                              letterSpacing: 0),
+                          style: _textStyleCurrentLocation,
                         ),
                       ],
                     ),
