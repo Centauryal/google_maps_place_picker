@@ -267,10 +267,10 @@ class PlacePicker extends StatefulWidget {
   final Widget? emptyWidgetSearch;
 
   @override
-  _PlacePickerState createState() => _PlacePickerState();
+  PlacePickerState createState() => PlacePickerState();
 }
 
-class _PlacePickerState extends State<PlacePicker> {
+class PlacePickerState extends State<PlacePicker> {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
@@ -422,7 +422,7 @@ class _PlacePickerState extends State<PlacePicker> {
                   debounceMilliseconds:
                       widget.autoCompleteDebounceInMilliseconds,
                   onPicked: (prediction) {
-                    _pickPrediction(prediction.placeId ?? '');
+                    pickPrediction(prediction.placeId ?? '');
                   },
                   onSearchFailed: (status) {
                     if (widget.onAutoCompleteFailed != null) {
@@ -484,7 +484,7 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _pickPrediction(String placeId) async {
+  pickPrediction(String placeId) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
     final PlacesDetailsResponse response =
@@ -535,7 +535,7 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    getPlaceIdFromSearch();
+    // getPlaceIdFromSearch();
 
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
@@ -634,7 +634,7 @@ class _PlacePickerState extends State<PlacePicker> {
         widget.placeIdFromSearch?.isNotEmpty == true;
 
     if (isPlaceIdNotNull) {
-      _pickPrediction(widget.placeIdFromSearch ?? '');
+      pickPrediction(widget.placeIdFromSearch ?? '');
     }
 
     if (widget.useMyLocationFromSearch == true) {
