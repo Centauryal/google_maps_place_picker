@@ -183,6 +183,7 @@ class GoogleMapPlacePicker extends StatelessWidget {
             mapType: data,
             myLocationEnabled: true,
             onMapCreated: (GoogleMapController controller) {
+              // supplied values [GoogleMapController] when the map is successfully created
               provider.mapController.complete(controller);
               provider.setCameraPosition(null);
               provider.pinState = PinState.Idle;
