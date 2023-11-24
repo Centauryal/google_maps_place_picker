@@ -513,10 +513,16 @@ class _PlacePickerState extends State<PlacePicker> {
     provider!.placeSearchingState = SearchingState.Idle;
   }
 
+  /// This function will direct the Google Maps camera based on the [latitude] and [longitude] value
   _moveTo(double latitude, double longitude) async {
+    // initial [GoogleMapController] to get the controller value async,
+    // because the [GoogleMapController] is obtained when the map is successfully created
     GoogleMapController? controller = await provider?.mapController.future;
 
-    if (controller == null) return;
+    if (controller == null) {
+      debugPrint('Map Controller is null');
+      return;
+    }
 
     return await controller.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -538,24 +544,34 @@ class _PlacePickerState extends State<PlacePicker> {
   Widget _buildMapWithLocation() {
     getPlaceIdFromSearch();
 
+    // This condition is used to display the map if the [useCurrentLocation] is true
     if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
       return FutureBuilder(
         future:
             provider!.updateCurrentLocation(widget.forceAndroidLocationManager),
         builder: (context, snap) {
+          // displays loading when connection is waiting
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
+            // displays the map based on initialPosition
             if (widget.initialPosition != null) {
               return _buildMap(widget.initialPosition!);
-            } else if (provider!.currentPosition != null) {
+            }
+
+            // displays the map if calling current location
+            else if (provider!.currentPosition != null) {
               return _buildMap(
                 LatLng(
                   provider!.currentPosition!.latitude,
                   provider!.currentPosition!.longitude,
                 ),
               );
-            } else {
+            }
+
+            // This condition will be called if the above conditions are not met
+            // and will display the map with the [defaultPosition]
+            else {
               return _buildMap(widget.defaultPosition);
             }
           }
@@ -565,13 +581,17 @@ class _PlacePickerState extends State<PlacePicker> {
       return FutureBuilder(
         future: Future.delayed(Duration(milliseconds: 1)),
         builder: (context, snap) {
+          // displays loading when connection is waiting
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
+            // displays the map based on initialPosition
             if (widget.initialPosition != null) {
               return _buildMap(widget.initialPosition!);
             }
 
+            // This condition will be called if the above conditions are not met
+            // and will display the map with the [defaultPosition]
             return _buildMap(widget.defaultPosition);
           }
         },
@@ -634,10 +654,16 @@ class _PlacePickerState extends State<PlacePicker> {
     final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
         widget.placeIdFromSearch?.isNotEmpty == true;
 
+    // This condition is used to display a pinpoint map
+    // based on search address results
     if (isPlaceIdNotNull) {
       _pickPrediction(widget.placeIdFromSearch ?? '');
       return;
-    } else if (widget.useMyLocationFromSearch == true) {
+    }
+
+    // This condition is used to display the current location when
+    // the current location action is called
+    else if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
       return;
     }
