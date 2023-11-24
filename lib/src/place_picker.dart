@@ -524,7 +524,7 @@ class _PlacePickerState extends State<PlacePicker> {
       return;
     }
 
-    return await controller.animateCamera(
+    return await controller?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(latitude, longitude),
