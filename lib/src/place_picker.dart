@@ -658,14 +658,12 @@ class _PlacePickerState extends State<PlacePicker> {
     // based on search address results
     if (isPlaceIdNotNull) {
       _pickPrediction(widget.placeIdFromSearch ?? '');
-      return;
     }
 
     // This condition is used to display the current location when
     // the current location action is called
-    else if (widget.useMyLocationFromSearch == true) {
+    if (widget.useMyLocationFromSearch == true) {
       await myLocationPermission();
-      return;
     }
   }
 }
