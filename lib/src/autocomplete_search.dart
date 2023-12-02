@@ -133,6 +133,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
       focusNode: focus,
       textCapitalization: TextCapitalization.sentences,
       style: body2RegularTextStyle(context, Color(0xE6000000)),
+      onEditingComplete: () => _onSearchInputChange(),
       decoration: InputDecoration(
         isDense: true,
         fillColor: Colors.white,
