@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -47,7 +48,6 @@ class PlacePicker extends StatefulWidget {
     this.enableMyLocationButton = true,
     this.myLocationButtonCooldown = 10,
     this.usePinPointingSearch = true,
-    this.usePlaceDetailSearch = false,
     this.autocompleteOffset,
     this.autocompleteRadius,
     this.autocompleteLanguage,
@@ -107,7 +107,6 @@ class PlacePicker extends StatefulWidget {
     this.enableMyLocationButton = true,
     this.myLocationButtonCooldown = 10,
     this.usePinPointingSearch = true,
-    this.usePlaceDetailSearch = false,
     this.autocompleteOffset,
     this.autocompleteRadius,
     this.autocompleteLanguage,
@@ -128,13 +127,13 @@ class PlacePicker extends StatefulWidget {
     this.prefixIconData,
     this.suffixIconData,
     this.textStyleCurrentLocation,
-    this.onTapCurrentLocation,
     this.emptyWidgetSearch,
     this.iconCurrentLocationSearch,
   })  : useAutoCompleteSearch = true,
         placeIdFromSearch = null,
         useMyLocationFromSearch = null,
         iconCurrentLocation = null,
+        onTapCurrentLocation = null,
         super(key: key);
 
   final String apiKey;
@@ -162,7 +161,6 @@ class PlacePicker extends StatefulWidget {
   final int myLocationButtonCooldown;
 
   final bool usePinPointingSearch;
-  final bool usePlaceDetailSearch;
   final bool useAutoCompleteSearch;
 
   final num? autocompleteOffset;
@@ -326,6 +324,7 @@ class _PlacePickerState extends State<PlacePicker> {
           if (snapshot.hasData) {
             provider = snapshot.data;
 
+            provider!.placeId = widget.placeIdFromSearch;
             provider!.updateCurrentLocation(widget.forceAndroidLocationManager);
 
             return MultiProvider(
@@ -387,61 +386,28 @@ class _PlacePickerState extends State<PlacePicker> {
     return Row(
       children: <Widget>[
         SizedBox(width: 16),
-        widget.automaticallyImplyAppBarLeading
-            ? SizedBox.square(
-                dimension: 48,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 20,
-                  child: Center(
-                    child: IconButton(
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.keyboard_arrow_left,
-                        color: Colors.black,
-                        size: 36,
-                      ),
-                      color: Colors.white,
-                      onPressed: () => Navigator.maybePop(context),
-                    ),
+        if (widget.automaticallyImplyAppBarLeading)
+          SizedBox.square(
+            dimension: 48,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 20,
+              child: Center(
+                child: IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.keyboard_arrow_left,
+                    color: Colors.black,
+                    size: 36,
                   ),
+                  color: Colors.white,
+                  onPressed: () => Navigator.maybePop(context),
                 ),
-              )
-            : SizedBox(),
-        if (widget.useAutoCompleteSearch)
-          Padding(
-            padding: EdgeInsets.only(left: 8),
-            child: Expanded(
-              child: AutoCompleteSearch(
-                  appBarKey: appBarKey,
-                  searchBarController: searchBarController,
-                  sessionToken: provider!.sessionToken,
-                  hintText: widget.hintText,
-                  debounceMilliseconds:
-                      widget.autoCompleteDebounceInMilliseconds,
-                  onPicked: (prediction) {
-                    _pickPrediction(prediction.placeId ?? '');
-                  },
-                  onSearchFailed: (status) {
-                    if (widget.onAutoCompleteFailed != null) {
-                      widget.onAutoCompleteFailed!(status);
-                    }
-                  },
-                  autocompleteOffset: widget.autocompleteOffset,
-                  autocompleteRadius: widget.autocompleteRadius,
-                  autocompleteLanguage: widget.autocompleteLanguage,
-                  autocompleteComponents: widget.autocompleteComponents,
-                  autocompleteTypes: widget.autocompleteTypes,
-                  strictbounds: widget.strictbounds,
-                  region: widget.region,
-                  initialSearchString: widget.initialSearchString,
-                  searchForInitialValue: widget.searchForInitialValue,
-                  autocompleteOnTrailingWhitespace:
-                      widget.autocompleteOnTrailingWhitespace),
+              ),
             ),
-          ),
+          )
       ],
     );
   }
@@ -484,7 +450,7 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _pickPrediction(String placeId) async {
+  Future<void> _pickPrediction(String placeId) async {
     provider!.placeSearchingState = SearchingState.Searching;
 
     final PlacesDetailsResponse response =
@@ -502,19 +468,42 @@ class _PlacePickerState extends State<PlacePicker> {
       return;
     }
 
-    provider!.selectedPlace = PickResult.fromPlaceDetailResult(response.result);
+    final detailResponse = await provider!.geocoding.searchByLocation(
+      Location(
+        lat: response.result.geometry!.location.lat,
+        lng: response.result.geometry!.location.lng,
+      ),
+      language: widget.autocompleteLanguage,
+    );
+
+    if (detailResponse.errorMessage?.isNotEmpty == true ||
+        detailResponse.status == "REQUEST_DENIED") {
+      print("Camera Location Search Error: " + detailResponse.errorMessage!);
+      provider!.placeSearchingState = SearchingState.Idle;
+      return;
+    }
+
+    // get result response by first index
+    final primaryResultResponse = detailResponse.results.first;
+
+    // get result response by type [postal_code]
+    final secondaryResultResponse = detailResponse.results.firstWhereOrNull(
+      (e) => e.types.first == 'postal_code',
+    );
+
+    provider!.selectedPlace = PickResult.fromGeocodingResultVoila(
+      primaryResultResponse,
+      secondaryResult: secondaryResultResponse,
+    );
 
     // Prevents searching again by camera movement.
     provider!.isAutoCompleteSearching = true;
-
-    await _moveTo(provider!.selectedPlace!.geometry!.location.lat,
-        provider!.selectedPlace!.geometry!.location.lng);
 
     provider!.placeSearchingState = SearchingState.Idle;
   }
 
   /// This function will direct the Google Maps camera based on the [latitude] and [longitude] value
-  _moveTo(double latitude, double longitude) async {
+  Future<void> _moveTo(double latitude, double longitude) async {
     // initial [GoogleMapController] to get the controller value async,
     // because the [GoogleMapController] is obtained when the map is successfully created
     GoogleMapController? controller = await provider?.mapController.future;
@@ -534,7 +523,7 @@ class _PlacePickerState extends State<PlacePicker> {
     );
   }
 
-  _moveToCurrentPosition() async {
+  Future<void> _moveToCurrentPosition() async {
     if (provider!.currentPosition != null) {
       await _moveTo(provider!.currentPosition!.latitude,
           provider!.currentPosition!.longitude);
@@ -542,29 +531,21 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Widget _buildMapWithLocation() {
-    getPlaceIdFromSearch();
-
-    // This condition is used to display the map if the [useCurrentLocation] is true
-    if (widget.useCurrentLocation != null && widget.useCurrentLocation!) {
+    // This condition is used to display the map from search page
+    if (provider!.placeId != null) {
       return FutureBuilder(
-        future:
-            provider!.updateCurrentLocation(widget.forceAndroidLocationManager),
+        future: _pickPrediction(provider!.placeId ?? ''),
         builder: (context, snap) {
           // displays loading when connection is waiting
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            // displays the map based on initialPosition
-            if (widget.initialPosition != null) {
-              return _buildMap(widget.initialPosition!);
-            }
-
             // displays the map if calling current location
-            else if (provider!.currentPosition != null) {
+            if (provider!.selectedPlace != null) {
               return _buildMap(
                 LatLng(
-                  provider!.currentPosition!.latitude,
-                  provider!.currentPosition!.longitude,
+                  provider!.selectedPlace!.geometry!.location.lat,
+                  provider!.selectedPlace!.geometry!.location.lng,
                 ),
               );
             }
@@ -573,6 +554,67 @@ class _PlacePickerState extends State<PlacePicker> {
             // and will display the map with the [defaultPosition]
             else {
               return _buildMap(widget.defaultPosition);
+            }
+          }
+        },
+      );
+    }
+
+    // This condition is used to display the map if the [useCurrentLocation] is true
+    else if ((widget.useCurrentLocation != null &&
+            widget.useCurrentLocation!) ||
+        (widget.useMyLocationFromSearch != null &&
+            widget.useMyLocationFromSearch!)) {
+      return FutureBuilder(
+        future:
+            provider!.updateCurrentLocation(widget.forceAndroidLocationManager),
+        builder: (context, snap) {
+          // displays loading when connection is waiting
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            // this section is for the current location of the search page
+            if (widget.useMyLocationFromSearch != null &&
+                widget.useMyLocationFromSearch!) {
+              // displays the map if calling current location
+              if (provider!.currentPosition != null) {
+                return _buildMap(
+                  LatLng(
+                    provider!.currentPosition!.latitude,
+                    provider!.currentPosition!.longitude,
+                  ),
+                );
+              }
+
+              // This condition will be called if the above conditions are not met
+              // and will display the map with the [defaultPosition]
+              else {
+                return _buildMap(widget.defaultPosition);
+              }
+            }
+
+            // this section is for the current location of the pinpoint page
+            else {
+              // displays the map based on initialPosition
+              if (widget.initialPosition != null) {
+                return _buildMap(widget.initialPosition!);
+              }
+
+              // displays the map if calling current location
+              else if (provider!.currentPosition != null) {
+                return _buildMap(
+                  LatLng(
+                    provider!.currentPosition!.latitude,
+                    provider!.currentPosition!.longitude,
+                  ),
+                );
+              }
+
+              // This condition will be called if the above conditions are not met
+              // and will display the map with the [defaultPosition]
+              else {
+                return _buildMap(widget.defaultPosition);
+              }
             }
           }
         },
@@ -610,7 +652,6 @@ class _PlacePickerState extends State<PlacePicker> {
       enableMapTypeButton: widget.enableMapTypeButton,
       enableMyLocationButton: widget.enableMyLocationButton,
       usePinPointingSearch: widget.usePinPointingSearch,
-      usePlaceDetailSearch: widget.usePlaceDetailSearch,
       onMapCreated: widget.onMapCreated,
       selectInitialPosition: widget.selectInitialPosition,
       language: widget.autocompleteLanguage,
@@ -633,6 +674,10 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   Future<void> myLocationPermission() async {
+    // set placeId [null] to prevent the map from pointing back
+    // to the pin point selected address
+    provider!.placeId = null;
+
     await Permission.location.request();
     if (await Permission.location.request().isGranted) {
       // Prevent to click many times in short period.
@@ -648,24 +693,5 @@ class _PlacePickerState extends State<PlacePicker> {
     }
 
     widget.onTapCurrentLocation?.call();
-  }
-
-  Future<void> getPlaceIdFromSearch() async {
-    final isPlaceIdNotNull = widget.placeIdFromSearch != null ||
-        widget.placeIdFromSearch?.isNotEmpty == true;
-
-    // This condition is used to display a pinpoint map
-    // based on search address results
-    if (isPlaceIdNotNull) {
-      _pickPrediction(widget.placeIdFromSearch ?? '');
-      return;
-    }
-
-    // This condition is used to display the current location when
-    // the current location action is called
-    else if (widget.useMyLocationFromSearch == true) {
-      await myLocationPermission();
-      return;
-    }
   }
 }

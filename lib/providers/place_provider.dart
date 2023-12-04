@@ -45,7 +45,6 @@ class PlaceProvider extends ChangeNotifier {
 
   Future<void> updateCurrentLocation(bool forceAndroidLocationManager) async {
     try {
-      await Permission.location.request();
       if (await Permission.location.request().isGranted) {
         currentPosition = await Geolocator.getCurrentPosition(
             desiredAccuracy: desiredAccuracy ?? LocationAccuracy.best);
@@ -60,41 +59,62 @@ class PlaceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? _placeId;
+
+  String? get placeId => _placeId;
+
+  set placeId(String? value) {
+    _placeId = value;
+    notifyListeners();
+  }
+
   Position? _currentPoisition;
+
   Position? get currentPosition => _currentPoisition;
+
   set currentPosition(Position? newPosition) {
     _currentPoisition = newPosition;
     notifyListeners();
   }
 
   Timer? _debounceTimer;
+
   Timer? get debounceTimer => _debounceTimer;
+
   set debounceTimer(Timer? timer) {
     _debounceTimer = timer;
     notifyListeners();
   }
 
   CameraPosition? _previousCameraPosition;
+
   CameraPosition? get prevCameraPosition => _previousCameraPosition;
+
   setPrevCameraPosition(CameraPosition? prePosition) {
     _previousCameraPosition = prePosition;
   }
 
   CameraPosition? _currentCameraPosition;
+
   CameraPosition? get cameraPosition => _currentCameraPosition;
+
   setCameraPosition(CameraPosition? newPosition) {
     _currentCameraPosition = newPosition;
   }
 
   PickResult? _selectedPlace;
+
   PickResult? get selectedPlace => _selectedPlace;
+
   set selectedPlace(PickResult? result) {
     _selectedPlace = result;
     notifyListeners();
   }
 
   SearchingState _placeSearchingState = SearchingState.Idle;
+
   SearchingState get placeSearchingState => _placeSearchingState;
+
   set placeSearchingState(SearchingState newState) {
     _placeSearchingState = newState;
     notifyListeners();
@@ -102,28 +122,36 @@ class PlaceProvider extends ChangeNotifier {
 
   Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
+
   Completer<GoogleMapController> get mapController => _mapController;
+
   set mapController(Completer<GoogleMapController> controller) {
     _mapController = controller;
     notifyListeners();
   }
 
   PinState _pinState = PinState.Preparing;
+
   PinState get pinState => _pinState;
+
   set pinState(PinState newState) {
     _pinState = newState;
     notifyListeners();
   }
 
   bool _isSeachBarFocused = false;
+
   bool get isSearchBarFocused => _isSeachBarFocused;
+
   set isSearchBarFocused(bool focused) {
     _isSeachBarFocused = focused;
     notifyListeners();
   }
 
   MapType _mapType = MapType.normal;
+
   MapType get mapType => _mapType;
+
   setMapType(MapType mapType, {bool notify = false}) {
     _mapType = mapType;
     if (notify) notifyListeners();
