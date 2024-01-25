@@ -110,7 +110,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
   }
 
   static OutlineInputBorder _enabledBorder() => OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
+        borderRadius: BorderRadius.circular(4),
         borderSide: BorderSide(
           width: 1,
           color: Color(0xFF999999),
@@ -118,7 +118,7 @@ class AutoCompleteSearchState extends State<AutoCompleteSearch> {
       );
 
   static OutlineInputBorder _focusedBorder() => OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
+        borderRadius: BorderRadius.circular(4),
         borderSide: BorderSide(
           width: 2,
           color: Color(0xFF12784A),
