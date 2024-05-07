@@ -310,6 +310,7 @@ class _PlacePickerState extends State<PlacePicker> with WidgetsBindingObserver {
       searchBarController.dispose();
     }
 
+    _inProgressNotifier.dispose();
     WidgetsBinding.instance.removeObserver(this);
 
     super.dispose();
