@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -268,15 +269,20 @@ class PlacePicker extends StatefulWidget {
   _PlacePickerState createState() => _PlacePickerState();
 }
 
-class _PlacePickerState extends State<PlacePicker> {
+class _PlacePickerState extends State<PlacePicker> with WidgetsBindingObserver {
   GlobalKey appBarKey = GlobalKey();
   Future<PlaceProvider>? _futureProvider;
   PlaceProvider? provider;
   late SearchBarController searchBarController;
+  late final ValueNotifier<bool> _inProgressNotifier;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _inProgressNotifier = ValueNotifier<bool>(false);
+
     if (widget.useAutoCompleteSearch) {
       searchBarController = SearchBarController();
     }
@@ -285,10 +291,26 @@ class _PlacePickerState extends State<PlacePicker> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      if (Platform.isAndroid) {
+        _inProgressNotifier.value = true;
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _inProgressNotifier.value = false;
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
     if (widget.useAutoCompleteSearch) {
       searchBarController.dispose();
     }
+
+    WidgetsBinding.instance.removeObserver(this);
 
     super.dispose();
   }
@@ -347,7 +369,15 @@ class _PlacePickerState extends State<PlacePicker> {
                         title: _buildAppBar(context),
                         systemOverlayStyle: SystemUiOverlayStyle.dark,
                       ),
-                      body: _buildMapWithLocation(),
+                      body: ValueListenableBuilder<bool>(
+                        valueListenable: _inProgressNotifier,
+                        builder: (context, isLoading, _) {
+                          if (isLoading) {
+                            return const SizedBox.shrink();
+                          }
+                          return _buildMapWithLocation();
+                        },
+                      ),
                     ),
             );
           }
